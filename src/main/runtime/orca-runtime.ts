@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Runtime facade methods are intentionally colocated with the host. */
 import type { RuntimeLinearCommandSurface } from './runtime-linear-command-surface'
 import { installRuntimeLinearCommandSurface } from './runtime-linear-command-surface'
 import { publishWorkspaceViewChanges } from './runtime-workspace-view-change-events'
@@ -52,6 +53,25 @@ import { sidebarInputsFeedDomains } from './sidebar-inputs/sidebar-inputs-feed-d
 import { requireSwitchedOn } from './sidebar-inputs/require-switched-on'
 import { HEADLESS_RUNTIME_WINDOW_ID } from '../../shared/runtime-session-contracts'
 import { getHostDisplayLabelOverrides } from '../../shared/host-setting-overrides'
+import type { AutoModelProfile } from '../../shared/auto-model-pool'
+import {
+  normalizeUniversalChatHarness,
+  UNIVERSAL_CHAT_HARNESSES
+} from '../../shared/universal-chat-harness'
+import {
+  isNativeChatModelEnabled,
+  isNativeChatProviderEnabled,
+  setNativeChatModelEnabled,
+  setNativeChatProviderEnabled
+} from '../../shared/native-chat-model-availability'
+import { getStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
+import {
+  closeUniversalChat,
+  createUniversalChat,
+  readUniversalChat,
+  selectUniversalChat,
+  sendUniversalChat
+} from './universal-chat-service'
 
 const OrcaRuntimeSidebarBase: typeof OrcaRuntimeWithAgentTransitions = ORCA_SIDEBAR_INPUTS_IS_MAIN
   ? OrcaRuntimeWithSidebarTemporal
@@ -59,6 +79,104 @@ const OrcaRuntimeSidebarBase: typeof OrcaRuntimeWithAgentTransitions = ORCA_SIDE
 
 // oxlint-disable-next-line typescript/no-unsafe-declaration-merging -- SAFETY: The existing Linear installer supplies the canonical prototype surface.
 class OrcaRuntimeService extends OrcaRuntimeSidebarBase {
+  /** Plugin-facing Omni facade. Settings remain scoped to Auto and Omni, never installed agents. */
+  readonly omni = {
+    readModels: async (includeDisabled = false) => {
+      const host = getStructuredAgentSessionHost()
+      const pool = host?.deps.autoModelPool
+      if (!pool) {
+        return []
+      }
+      const models = await pool.read({
+        includeDisabled,
+        includeDisabledAgents: includeDisabled,
+        waitForListing: true
+      })
+      const settings = this.requireStore().getSettings()
+      return models.map((model) => ({
+        ...model,
+        enabled: isNativeChatModelEnabled(
+          settings.disabledNativeChatModelKeys,
+          model.provider as never,
+          model.modelId
+        ),
+        providerEnabled: isNativeChatProviderEnabled(
+          settings.disabledNativeChatProviders,
+          model.provider as never
+        )
+      }))
+    },
+    setModelEnabled: async (provider: string, modelId: string, enabled: boolean) => {
+      const store = this.requireStore()
+      const settings = store.getSettings()
+      if (!store.updateSettings) {
+        throw new Error('Orca settings are unavailable')
+      }
+      store.updateSettings(
+        {
+          disabledNativeChatModelKeys: setNativeChatModelEnabled(
+            settings.disabledNativeChatModelKeys,
+            provider as never,
+            modelId,
+            enabled
+          )
+        },
+        { notifyListeners: true }
+      )
+    },
+    setProviderEnabled: async (provider: string, enabled: boolean) => {
+      const store = this.requireStore()
+      const settings = store.getSettings()
+      if (!store.updateSettings) {
+        throw new Error('Orca settings are unavailable')
+      }
+      store.updateSettings(
+        {
+          disabledNativeChatProviders: setNativeChatProviderEnabled(
+            settings.disabledNativeChatProviders,
+            provider as never,
+            enabled
+          )
+        },
+        { notifyListeners: true }
+      )
+    },
+    readSettings: async () => ({
+      defaultHarness: normalizeUniversalChatHarness(
+        this.requireStore().getSettings().universalChatDefaultHarness
+      ),
+      harnesses: ['auto', ...UNIVERSAL_CHAT_HARNESSES]
+    }),
+    setDefaultHarness: async (harness: string) => {
+      const normalized = normalizeUniversalChatHarness(harness)
+      const store = this.requireStore()
+      if (!store.updateSettings) {
+        throw new Error('Orca settings are unavailable')
+      }
+      store.updateSettings({ universalChatDefaultHarness: normalized }, { notifyListeners: true })
+    },
+    createChat: async (worktree: string, profile?: string) => {
+      const context = await this.resolveActiveWorktreeContext()
+      if (!context) {
+        throw new Error('Aucun worktree actif pour Omni.')
+      }
+      const selector = worktree === 'current' ? `id:${context.worktreeId}` : worktree
+      const rpcContext = { runtime: this } as never
+      return readUniversalChat(
+        rpcContext,
+        await createUniversalChat(rpcContext, selector, (profile ?? 'balanced') as AutoModelProfile)
+      )
+    },
+    readChat: async (sessionId: string) => readUniversalChat({ runtime: this } as never, sessionId),
+    selectChat: async (sessionId: string, selection: unknown) => {
+      const ctx = { runtime: this } as never
+      await selectUniversalChat(ctx, sessionId, selection as never)
+      return readUniversalChat(ctx, sessionId)
+    },
+    sendChat: async (sessionId: string, text: string, selection?: unknown) =>
+      sendUniversalChat({ runtime: this } as never, sessionId, text, selection as never),
+    closeChat: async (sessionId: string) => closeUniversalChat(sessionId)
+  }
   /** Sidebar facts are absent unless ORCA_SIDEBAR_INPUTS=main. */
   get sidebarFacts() {
     return sidebarFactsRuntime(this)

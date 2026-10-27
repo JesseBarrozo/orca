@@ -27,6 +27,7 @@ export type PluginRuntimeDelegate = {
     title: string
     body?: string
   }): Promise<{ delivered: boolean }>
+  omni?: PluginHostServices['omni']
 }
 
 export function bindPluginHostServices(input: {
@@ -63,6 +64,7 @@ export function bindPluginHostServices(input: {
       return { accepted: result.accepted }
     },
     dispatchPluginNotification: (notification) => delegate.dispatchPluginNotification(notification),
+    omni: delegate.omni,
     storage: {
       get: (key, itemKey) => new PluginKvStore(pluginsDataDir, key, 'storage.json').get(itemKey),
       set: (key, itemKey, value) =>

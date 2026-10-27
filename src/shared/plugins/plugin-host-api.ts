@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- The versioned host contract stays in one auditable table. */
 import { z } from 'zod'
 import { PLUGIN_EVENT_NAMES } from './plugin-manifest'
 import type { PluginCapabilityKind } from './plugin-capabilities'
@@ -81,6 +82,64 @@ const eventsSubscribeParams = z.object({
   events: z.array(z.enum(PLUGIN_EVENT_NAMES)).min(1).max(PLUGIN_EVENT_NAMES.length)
 })
 const eventsSubscribeResult = z.object({ subscribed: z.array(z.enum(PLUGIN_EVENT_NAMES)) })
+
+const omniModelsReadParams = z
+  .object({ includeDisabled: z.boolean().optional() })
+  .strict()
+  .optional()
+const omniModelsReadResult = z.array(
+  z
+    .object({
+      provider: z.string(),
+      modelId: z.string(),
+      label: z.string(),
+      score: z.number(),
+      availability: z.enum(['available', 'unknown', 'unavailable']).optional(),
+      isFree: z.boolean().optional(),
+      enabled: z.boolean(),
+      providerEnabled: z.boolean()
+    })
+    .passthrough()
+)
+const omniModelEnabledParams = z
+  .object({
+    provider: z.string().min(1),
+    modelId: z.string().min(1),
+    enabled: z.boolean()
+  })
+  .strict()
+const omniProviderEnabledParams = z
+  .object({
+    provider: z.string().min(1),
+    enabled: z.boolean()
+  })
+  .strict()
+const omniSettingsReadParams = z.object({}).strict().optional()
+const omniSettingsReadResult = z
+  .object({
+    defaultHarness: z.string(),
+    harnesses: z.array(z.string())
+  })
+  .strict()
+const omniDefaultHarnessParams = z.object({ harness: z.string().min(1) }).strict()
+const omniChatCreateParams = z
+  .object({ worktree: z.string().min(1), profile: z.string().optional() })
+  .strict()
+const omniChatSessionParams = z.object({ sessionId: z.string().min(1) }).strict()
+const omniChatSelectParams = z
+  .object({
+    sessionId: z.string().min(1),
+    selection: z.unknown()
+  })
+  .strict()
+const omniChatSendParams = z
+  .object({
+    sessionId: z.string().min(1),
+    text: z.string().min(1).max(PANEL_ACTION_TEXT_MAX_LENGTH),
+    selection: z.unknown().optional()
+  })
+  .strict()
+const omniChatResult = z.unknown()
 
 export type PluginHostMethodSpec = {
   name: string
@@ -236,6 +295,106 @@ export const PLUGIN_HOST_API_V0: readonly PluginHostMethodSpec[] = [
     panel: false,
     params: eventsSubscribeParams,
     result: eventsSubscribeResult
+  }),
+  spec({
+    name: 'omni.models.read',
+    since: '1.1',
+    scope: 'desktop',
+    capability: 'omni:catalog',
+    mutation: false,
+    panel: true,
+    params: omniModelsReadParams,
+    result: omniModelsReadResult
+  }),
+  spec({
+    name: 'omni.models.setEnabled',
+    since: '1.1',
+    scope: 'desktop',
+    capability: 'omni:settings',
+    mutation: true,
+    panel: true,
+    params: omniModelEnabledParams,
+    result: z.object({ ok: z.literal(true) })
+  }),
+  spec({
+    name: 'omni.providers.setEnabled',
+    since: '1.1',
+    scope: 'desktop',
+    capability: 'omni:settings',
+    mutation: true,
+    panel: true,
+    params: omniProviderEnabledParams,
+    result: z.object({ ok: z.literal(true) })
+  }),
+  spec({
+    name: 'omni.settings.read',
+    since: '1.1',
+    scope: 'desktop',
+    capability: 'omni:settings',
+    mutation: false,
+    panel: true,
+    params: omniSettingsReadParams,
+    result: omniSettingsReadResult
+  }),
+  spec({
+    name: 'omni.settings.setDefaultHarness',
+    since: '1.1',
+    scope: 'desktop',
+    capability: 'omni:settings',
+    mutation: true,
+    panel: true,
+    params: omniDefaultHarnessParams,
+    result: z.object({ ok: z.literal(true) })
+  }),
+  spec({
+    name: 'omni.chat.create',
+    since: '1.1',
+    scope: 'active-worktree',
+    capability: 'omni:chat',
+    mutation: true,
+    panel: true,
+    params: omniChatCreateParams,
+    result: omniChatResult
+  }),
+  spec({
+    name: 'omni.chat.history',
+    since: '1.1',
+    scope: 'active-worktree',
+    capability: 'omni:chat',
+    mutation: false,
+    panel: true,
+    params: omniChatSessionParams,
+    result: omniChatResult
+  }),
+  spec({
+    name: 'omni.chat.select',
+    since: '1.1',
+    scope: 'active-worktree',
+    capability: 'omni:chat',
+    mutation: true,
+    panel: true,
+    params: omniChatSelectParams,
+    result: omniChatResult
+  }),
+  spec({
+    name: 'omni.chat.send',
+    since: '1.1',
+    scope: 'active-worktree',
+    capability: 'omni:chat',
+    mutation: true,
+    panel: true,
+    params: omniChatSendParams,
+    result: omniChatResult
+  }),
+  spec({
+    name: 'omni.chat.close',
+    since: '1.1',
+    scope: 'active-worktree',
+    capability: 'omni:chat',
+    mutation: true,
+    panel: true,
+    params: omniChatSessionParams,
+    result: z.object({ ok: z.literal(true) })
   })
 ]
 

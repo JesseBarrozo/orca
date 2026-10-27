@@ -45,6 +45,18 @@ export type PluginHostServices = {
     set(pluginId: string, key: string, value: unknown): { ok: true } | { ok: false; error: string }
   }
   subscribeEvents(pluginId: string, events: PluginEventName[]): PluginEventName[]
+  omni?: {
+    readModels(includeDisabled?: boolean): Promise<unknown[]>
+    setModelEnabled(provider: string, modelId: string, enabled: boolean): Promise<void>
+    setProviderEnabled(provider: string, enabled: boolean): Promise<void>
+    readSettings(): Promise<{ defaultHarness: string; harnesses: string[] }>
+    setDefaultHarness(harness: string): Promise<void>
+    createChat(worktree: string, profile?: string): Promise<unknown>
+    readChat(sessionId: string): Promise<unknown>
+    selectChat(sessionId: string, selection: unknown): Promise<unknown>
+    sendChat(sessionId: string, text: string, selection?: unknown): Promise<unknown>
+    closeChat(sessionId: string): Promise<void>
+  }
 }
 
 export type BoundPluginHostMethod = {
@@ -64,6 +76,13 @@ function definePluginMethod(
     throw new Error(`no host API spec for method ${name}`)
   }
   return [name, { spec, handler }]
+}
+
+function requireOmni(services: PluginHostServices) {
+  if (!services.omni) {
+    throw new Error('Omni host API is unavailable in this Orca runtime')
+  }
+  return services.omni
 }
 
 const HANDLERS = new Map<string, BoundPluginHostMethod>([
@@ -163,6 +182,57 @@ const HANDLERS = new Map<string, BoundPluginHostMethod>([
   definePluginMethod('events.subscribe', async (params, { pluginId, services }) => {
     const { events } = params as { events: PluginEventName[] }
     return { subscribed: services.subscribeEvents(pluginId, events) }
+  }),
+  definePluginMethod('omni.models.read', async (params, { services }) => {
+    const { includeDisabled } = (params ?? {}) as { includeDisabled?: boolean }
+    return requireOmni(services).readModels(includeDisabled)
+  }),
+  definePluginMethod('omni.models.setEnabled', async (params, { services }) => {
+    const { provider, modelId, enabled } = params as {
+      provider: string
+      modelId: string
+      enabled: boolean
+    }
+    await requireOmni(services).setModelEnabled(provider, modelId, enabled)
+    return { ok: true }
+  }),
+  definePluginMethod('omni.providers.setEnabled', async (params, { services }) => {
+    const { provider, enabled } = params as { provider: string; enabled: boolean }
+    await requireOmni(services).setProviderEnabled(provider, enabled)
+    return { ok: true }
+  }),
+  definePluginMethod('omni.settings.read', async (_params, { services }) => {
+    return requireOmni(services).readSettings()
+  }),
+  definePluginMethod('omni.settings.setDefaultHarness', async (params, { services }) => {
+    const { harness } = params as { harness: string }
+    await requireOmni(services).setDefaultHarness(harness)
+    return { ok: true }
+  }),
+  definePluginMethod('omni.chat.create', async (params, { services }) => {
+    const { worktree, profile } = params as { worktree: string; profile?: string }
+    return requireOmni(services).createChat(worktree, profile)
+  }),
+  definePluginMethod('omni.chat.history', async (params, { services }) => {
+    const { sessionId } = params as { sessionId: string }
+    return requireOmni(services).readChat(sessionId)
+  }),
+  definePluginMethod('omni.chat.select', async (params, { services }) => {
+    const { sessionId, selection } = params as { sessionId: string; selection: unknown }
+    return requireOmni(services).selectChat(sessionId, selection)
+  }),
+  definePluginMethod('omni.chat.send', async (params, { services }) => {
+    const { sessionId, text, selection } = params as {
+      sessionId: string
+      text: string
+      selection?: unknown
+    }
+    return requireOmni(services).sendChat(sessionId, text, selection)
+  }),
+  definePluginMethod('omni.chat.close', async (params, { services }) => {
+    const { sessionId } = params as { sessionId: string }
+    await requireOmni(services).closeChat(sessionId)
+    return { ok: true }
   })
 ])
 
