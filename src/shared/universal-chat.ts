@@ -2,8 +2,15 @@ import type { AutoModelPoolEntry, AutoModelProfile } from './auto-model-pool'
 import type { UniversalChatHarness } from './universal-chat-harness'
 
 export type UniversalChatSelection =
-  | { mode: 'auto'; harness?: UniversalChatHarness }
-  | { mode: 'model'; provider: string; modelId: string; harness?: UniversalChatHarness }
+  | { mode: 'auto'; harness?: UniversalChatHarness; effort?: string; fastMode?: boolean }
+  | {
+      mode: 'model'
+      provider: string
+      modelId: string
+      harness?: UniversalChatHarness
+      effort?: string
+      fastMode?: boolean
+    }
 
 export type UniversalChatTurn = {
   id: string

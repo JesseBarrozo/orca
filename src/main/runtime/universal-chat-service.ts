@@ -39,6 +39,8 @@ type ProviderSession = {
   modelId: string
   label: string
   harness: UniversalChatHarness
+  effort?: string
+  fastMode?: boolean
 }
 
 type UniversalSession = {
@@ -101,7 +103,9 @@ export async function selectUniversalChat(
     !current ||
     current.provider !== candidate.provider ||
     current.modelId !== candidate.modelId ||
-    current.harness !== harness
+    current.harness !== harness ||
+    current.effort !== normalizedSelection.effort ||
+    current.fastMode !== normalizedSelection.fastMode
   ) {
     session.providerSession = await createProviderSession(ctx, session, candidate, undefined, false)
     session.providerSessionIds.add(session.providerSession.sessionId)
@@ -148,7 +152,9 @@ export async function sendUniversalChat(
   const providerChanged =
     session.providerSession?.provider !== candidate.provider ||
     session.providerSession?.modelId !== candidate.modelId ||
-    session.providerSession?.harness !== resolveHarness(session.selection, candidate.provider)
+    session.providerSession?.harness !== resolveHarness(session.selection, candidate.provider) ||
+    session.providerSession?.effort !== session.selection.effort ||
+    session.providerSession?.fastMode !== session.selection.fastMode
   if (!session.providerSession || providerChanged) {
     session.providerSession = await createProviderSession(ctx, session, candidate, text, false)
     session.providerSessionIds.add(session.providerSession.sessionId)
@@ -249,6 +255,11 @@ async function createProviderSession(
     registerUniversalChatGatewaySession(providerSessionId, gateway)
   }
   const launchModelId = gateway?.launchModelId ?? candidate.modelId
+  const launchOptions = {
+    model: launchModelId,
+    ...(session.selection.effort ? { effort: session.selection.effort } : {}),
+    ...(session.selection.fastMode ? { fastMode: 'true' } : {})
+  }
   const firstMessage = text
     ? { clientMessageId: randomUUID(), body: userBody(buildProviderPrompt(session, text)) }
     : undefined
@@ -257,7 +268,7 @@ async function createProviderSession(
     worktree: session.worktree,
     agent: harness,
     ...(firstMessage ? { firstMessage } : {}),
-    options: { model: launchModelId },
+    options: launchOptions,
     randomUuid: randomUUID
   })
   try {
@@ -268,7 +279,7 @@ async function createProviderSession(
       worktree: session.worktree,
       agent: harness,
       caller,
-      options: { model: launchModelId },
+      options: launchOptions,
       ...(firstMessage ? { firstMessage } : {}),
       atRest: true
     })
@@ -296,7 +307,9 @@ async function createProviderSession(
       provider: candidate.provider,
       modelId: candidate.modelId,
       label: candidate.label,
-      harness
+      harness,
+      ...(session.selection.effort ? { effort: session.selection.effort } : {}),
+      ...(session.selection.fastMode ? { fastMode: true } : {})
     }
   } catch (error) {
     unregisterUniversalChatGatewaySession(providerSessionId)
