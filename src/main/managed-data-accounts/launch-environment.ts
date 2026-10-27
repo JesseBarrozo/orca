@@ -1,16 +1,12 @@
 import type { TuiAgent } from '../../shared/tui-agent'
-import type { ManagedDataAccountProvider } from '../../shared/managed-account-types'
-import { getManagedDataAccountService, type ManagedDataAccountService } from './service'
+import { getManagedDataAccountService } from './service'
 import { MANAGED_DATA_ACCOUNT_BASELINE_ENV_KEYS } from '../../shared/managed-data-account-environment'
 import { getAgentLaunchExecutableName } from '../../shared/agent-command-line-intent'
-import { MANAGED_DATA_ACCOUNT_RESUME_ENV } from '../../shared/managed-data-account-resume'
 
 export function applyManagedDataAccountEnvironment(
   environment: Record<string, string>,
   options: { launchAgent?: TuiAgent; launchCommand?: string; isWsl?: boolean }
 ): void {
-  const requestedAccountId = environment[MANAGED_DATA_ACCOUNT_RESUME_ENV]
-  delete environment[MANAGED_DATA_ACCOUNT_RESUME_ENV]
   const service = getManagedDataAccountService()
   service.restoreOriginalEnvironment(environment)
   const inherited = { ...process.env }
@@ -30,7 +26,7 @@ export function applyManagedDataAccountEnvironment(
   if (!provider) {
     return
   }
-  const selected = managedAccountLaunchEnvironment(service, provider, requestedAccountId)
+  const selected = service.launchEnvironment(provider)
   if (!selected.XDG_DATA_HOME) {
     return
   }
@@ -44,20 +40,4 @@ export function applyManagedDataAccountEnvironment(
     environment.OPENCODE_AUTH_CONTENT = ''
     environment.OPENCODE_DB = 'opencode.db'
   }
-}
-
-/** A resumed session's owning account wins; a removed owner falls back to the active account. */
-export function managedAccountLaunchEnvironment(
-  service: Pick<ManagedDataAccountService, 'environmentForAccount' | 'launchEnvironment'>,
-  provider: ManagedDataAccountProvider,
-  requestedAccountId: string | undefined
-): Record<string, string> {
-  if (requestedAccountId) {
-    try {
-      return service.environmentForAccount(provider, requestedAccountId)
-    } catch {
-      // Removed owner.
-    }
-  }
-  return service.launchEnvironment(provider)
 }

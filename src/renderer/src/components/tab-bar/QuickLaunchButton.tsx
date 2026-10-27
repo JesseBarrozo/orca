@@ -23,6 +23,7 @@ import type { NewTabAgentMenuRow } from '@/lib/new-tab-agent-menu-rows'
 import { useNewTabAgentMenuRows, type NewTabAgentMenuModel } from './use-new-tab-agent-menu-rows'
 import { useAgentDetectionTargetForWorktree } from '@/hooks/useAgentDetectionTarget'
 import { chatUnavailableLabel, rowTitle, rowLabel, rowId } from './tab-agent-row-presentation'
+import { OmniIcon } from '@/components/status-bar/icons'
 
 export type QuickLaunchAgentMenuItemsProps = {
   worktreeId: string
@@ -41,6 +42,8 @@ export type QuickLaunchAgentMenuItemsProps = {
   onPromptHandedOff?: (delivered: Promise<unknown>) => void
   /** Nothing to send: e.g. every note is already on its way, so no agent is started. */
   disabled?: boolean
+  /** Opens the provider-neutral Universal Chat surface when its renderer transport is available. */
+  onUniversalChat?: () => void
 }
 
 const ROW_NAVIGATION_KEYS = new Set(['ArrowLeft', 'ArrowUp', 'ArrowDown', 'Home', 'End'])
@@ -163,13 +166,17 @@ function QuickLaunchAgentMenuItemsInner(props: QuickLaunchAgentMenuItemsProps): 
 export function ProjectedAgentMenuItems({
   disabled = false,
   model,
-  runLaunch
+  runLaunch,
+  onUniversalChat
 }: {
   disabled?: boolean
   model: NewTabAgentMenuModel
   runLaunch: (row: NewTabAgentMenuRow) => void
+  onUniversalChat?: () => void
 }): React.JSX.Element {
-  const desktopDefaultAgent = useAppStore((s) => s.settings?.defaultTuiAgent)
+  const desktopDefaultAgent = useAppStore((s) =>
+    s.settings?.universalChatDefault ? 'universal' : s.settings?.defaultTuiAgent
+  )
   const openSettingsPage = useAppStore((s) => s.openSettingsPage)
   const openSettingsTarget = useAppStore((s) => s.openSettingsTarget)
   const newAgentShortcut = useOptionalShortcutLabel('tab.newAgent')
@@ -177,6 +184,18 @@ export function ProjectedAgentMenuItems({
     openSettingsTarget({ pane: 'agents', repoId: null })
     openSettingsPage()
   }, [openSettingsPage, openSettingsTarget])
+  const openUniversalChat = useCallback(() => {
+    if (onUniversalChat) {
+      onUniversalChat()
+      return
+    }
+    toast.info(
+      translate(
+        'auto.components.tab.bar.QuickLaunchButton.universalChatTransportPending',
+        'Le transport d’Omni n’est pas encore connecté à cette fenêtre.'
+      )
+    )
+  }, [onUniversalChat])
   if (model.state === 'loading') {
     // Why: rows fill in once when every answer is known, instead of reshuffling under the pointer.
     return (
@@ -196,6 +215,10 @@ export function ProjectedAgentMenuItems({
             </span>
           </DropdownMenuItem>
         ))}
+        <UniversalChatMenuItem
+          onSelect={openUniversalChat}
+          isDefault={desktopDefaultAgent === 'universal'}
+        />
         <AgentSettingsMenuItem onSelect={openAgentSettings} />
       </>
     )
@@ -233,6 +256,10 @@ export function ProjectedAgentMenuItems({
                   )}
         </DropdownMenuItem>
       ) : null}
+      <UniversalChatMenuItem
+        onSelect={openUniversalChat}
+        isDefault={defaultAgent === 'universal'}
+      />
       {rows.map((row, index) => {
         const { agent } = row
         const label = getCatalogEntry(agent)?.label ?? agent
@@ -282,6 +309,29 @@ export function ProjectedAgentMenuItems({
       })}
       <AgentSettingsMenuItem onSelect={openAgentSettings} />
     </>
+  )
+}
+
+function UniversalChatMenuItem({
+  onSelect,
+  isDefault = false
+}: {
+  onSelect: () => void
+  isDefault?: boolean
+}): React.JSX.Element {
+  const shortcutLabel = useOptionalShortcutLabel('tab.newAgent')
+  return (
+    <DropdownMenuItem
+      variant="launch"
+      onSelect={onSelect}
+      aria-label={translate('auto.components.tab.bar.QuickLaunchButton.universalChat', 'Omni')}
+    >
+      <OmniIcon size={16} />
+      <span className="flex-1">
+        {translate('auto.components.tab.bar.QuickLaunchButton.universalChat', 'Omni')}
+      </span>
+      {isDefault ? <DropdownMenuShortcut>{shortcutLabel ?? ''}</DropdownMenuShortcut> : null}
+    </DropdownMenuItem>
   )
 }
 

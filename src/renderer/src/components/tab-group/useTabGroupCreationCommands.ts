@@ -12,6 +12,7 @@ import { buildDuplicatedBrowserTabOptions } from '@/lib/duplicate-browser-tab-op
 import { runtimeEnvironmentIdOrLocalUnlessTwin } from '@/lib/worktree-runtime-owner'
 import { browserWorkspaceHasRemoteOwner } from '@/runtime/remote-browser-tab-ownership'
 import { getClientCreationActionPolicy } from '@/lib/client-creation-action-policy'
+import { launchUniversalChatInNewTab } from '@/lib/launch-universal-chat-in-new-tab'
 import type { TabGroupWorktreeSnapshot } from './useTabGroupItemProjections'
 
 export function useTabGroupCreationCommands({
@@ -131,6 +132,11 @@ export function useTabGroupCreationCommands({
         setActiveTabType('terminal', worktreeId)
         focusTerminalTabSurface(tabId)
       })()
+    },
+    newUniversalChat: () => {
+      void launchUniversalChatInNewTab({ worktreeId, groupId }).catch((error) => {
+        toast.error(error instanceof Error ? error.message : String(error))
+      })
     }
   }
 }

@@ -22,6 +22,18 @@ describe('getRepoRoutingConnectionId', () => {
     expect(getRepoRoutingConnectionId(repo)).toBe(expected)
   })
 
+  it('never answers local for a row whose raw connectionId is set', () => {
+    for (const executionHostId of [
+      undefined,
+      'local',
+      'runtime:env',
+      'ssh:gpu',
+      'ssh:other'
+    ] as const) {
+      expect(getRepoRoutingConnectionId({ executionHostId, connectionId: 'gpu' })).not.toBeNull()
+    }
+  })
+
   it('lets executionHostId win on a contradictory SSH row, as getRepoExecutionHostId does', () => {
     expect(getRepoRoutingConnectionId({ executionHostId: 'ssh:b', connectionId: 'a' })).toBe('b')
   })

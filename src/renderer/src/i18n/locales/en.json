@@ -470,6 +470,14 @@
     },
     "agents": {
       "permissionsTitle": "Permissions",
+      "universalChatDefaultHarness": "Omni default harness",
+      "universalChatDefaultHarnessDescription": "Used for new Auto & Omni Chat sessions. The harness and selected model are independent.",
+      "universalChatDefaultHarnessUndetected": "Saved as default, but this harness is not detected right now",
+      "universalChatNoHarnesses": "No structured harness detected on this host",
+      "universalChatAutoHarness": "Auto",
+      "modelsAvailableToAutoAndUniversalChat": "Models available to Auto & Omni Chat",
+      "modelsAvailableToAutoDescription": "Enable or disable models used by Auto and Omni Chat. Models discovered later are enabled by default.",
+      "searchModels": "Search models or providers",
       "permissionsChoiceExplanation": "What every agent may do without asking. You can set one agent differently below.",
       "permissionEachOwn": "Each agent's own settings",
       "permissionEachOwnDescription": "Orca adds nothing; each CLI uses its own config",
@@ -4006,6 +4014,8 @@
             "chatNotOnHost": "No chat on this host",
             "chatCheckFailed": "Couldn’t check chat availability",
             "chatLoading": "Checking chat support…",
+            "universalChat": "Omni",
+            "universalChatTransportPending": "Omni transport is not connected to this window yet.",
             "chatUnavailableAfterSelection": "Couldn't start a {{value0}} chat.",
             "startChat": "Start a chat with {{value0}}",
             "cliTag": "(CLI)",
@@ -19292,6 +19302,10 @@
         "sessionOptions": "Session options",
         "chooseInAgentPicker": "Choose in agent picker…",
         "searchModels": "Search models…",
+        "universalAuto": "Auto",
+        "universalAutoDescription": "Orca chooses the best enabled model.",
+        "universalHarness": "Omni harness: {{value0}}",
+        "universalModel": "Omni model: {{value0}}",
         "noModelsMatch": "No models match your search.",
         "toggleOption": "Toggle {{value0}}",
         "pillAccessibleName": "{{value0}} {{value1}}",
@@ -19548,6 +19562,10 @@
         "empty": {
           "title": "Start a chat with {{value0}}",
           "subtitle": "Ask {{value0}} to inspect code, explain output, or make a change."
+        },
+        "universal": {
+          "title": "Start an Omni chat",
+          "subtitle": "Orca chooses the provider and model according to your settings."
         }
       },
       "stop": "Stop the agent",

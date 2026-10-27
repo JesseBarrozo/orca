@@ -221,7 +221,7 @@ describe('ACP model catalog probes', () => {
     expect(agent.frames.some((frame) => frame.method === 'authenticate')).toBe(false)
   })
 
-  it('lists OpenCode with `models --verbose` under its scrubbed launch env, with no ACP call', async () => {
+  it('lists OpenCode with `models` under its scrubbed launch env, with no ACP call', async () => {
     const runListing = vi.fn(async () => 'opencode/big-pickle\n{\n  "name": "Big Pickle"\n}\n')
     const connect = vi.fn()
     const probe = createAcpModelCatalogProbe(OPENCODE, {
@@ -241,7 +241,7 @@ describe('ACP model catalog probes', () => {
     expect(runListing).toHaveBeenCalledWith(
       expect.objectContaining({
         command: '/opt/opencode/bin/opencode',
-        args: ['models', '--verbose'],
+        args: ['models'],
         cwd: '/work/project',
         env: expect.objectContaining({ OPENCODE_CLIENT: 'acp' })
       }),
@@ -283,6 +283,31 @@ describe('ACP model catalog probes', () => {
       )
     ).rejects.toThrow(/cannot delete a session/)
     expect(agent.frames.map((frame) => frame.method)).toEqual(['initialize'])
+  })
+
+  it('can list a provider without a chat folder when the provider owns disposable session state', async () => {
+    const { agent, deps } = scriptedOpenCode2(false)
+    const spec: AcpLaunchSpec = {
+      ...OPENCODE,
+      modelDiscovery: {
+        kind: 'session',
+        listingNamesConfiguredModel: false,
+        allowUndeletedSession: true
+      }
+    }
+    const success = await createAcpModelCatalogProbe(
+      spec,
+      deps
+    )({
+      kind: 'opencode',
+      locator: { kind: 'unmanaged' }
+    })
+    expect(agent.frames.map((frame) => frame.method)).toEqual(['initialize', 'session/new'])
+    expect(agent.frames[1]!.params).toMatchObject({ cwd: '/home/user' })
+    expect(success.models.map((model) => model.id)).toEqual([
+      'opencode/big-pickle',
+      'opencode/exo-free'
+    ])
   })
 
   it('lists OMP from a session kept in a folder it removes, in the chat folder', async () => {

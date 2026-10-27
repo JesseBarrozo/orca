@@ -1,7 +1,6 @@
 import { constants, type Stats } from 'node:fs'
 import { open, type FileHandle } from 'node:fs/promises'
 import { isENOENT } from './filesystem-path-containment'
-import { windowsFsPath } from '../../wsl/wsl-unc-drive-fs-path'
 
 export const NOT_A_REGULAR_FILE_MESSAGE = 'Not a regular file'
 
@@ -21,8 +20,7 @@ export function fileTooLargeError(size: number, limit: number): Error {
 export async function openLocalRegularFile(
   filePath: string
 ): Promise<{ handle: FileHandle; stats: Stats }> {
-  // A UNC drive-mount file opens only through its drive path.
-  const handle = await open(windowsFsPath(filePath), LOCAL_READ_OPEN_FLAGS)
+  const handle = await open(filePath, LOCAL_READ_OPEN_FLAGS)
   try {
     const stats = await handle.stat()
     if (!stats.isFile()) {
@@ -69,7 +67,7 @@ export async function readLocalFilePrefix(handle: FileHandle, bytes: number): Pr
 export async function assertLocalWriteTargetIsRegularFile(filePath: string): Promise<void> {
   let handle: FileHandle
   try {
-    handle = await open(windowsFsPath(filePath), LOCAL_WRITE_PROBE_FLAGS)
+    handle = await open(filePath, LOCAL_WRITE_PROBE_FLAGS)
   } catch (error) {
     if (isENOENT(error)) {
       return

@@ -22,6 +22,11 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
     load: async () => (await import('./handlers/core.js')).CORE_HANDLERS
   },
   {
+    name: 'universal-chat',
+    keys: ['universal'],
+    load: async () => (await import('./handlers/universal-chat.js')).UNIVERSAL_CHAT_HANDLERS
+  },
+  {
     name: 'serve-restore',
     keys: ['serve restore resume'],
     load: async () => (await import('./handlers/serve-restore.js')).SERVE_RESTORE_HANDLERS

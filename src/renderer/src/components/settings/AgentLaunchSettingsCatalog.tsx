@@ -38,7 +38,10 @@ import {
   resolveTuiAgentLaunchArgs,
   resolveTuiAgentLaunchEnv
 } from '../../../../shared/tui-agent-launch-defaults'
-import { isTuiAgentEnabled } from '../../../../shared/tui-agent-selection'
+import {
+  collapsePreferredAgentAliases,
+  isTuiAgentEnabled
+} from '../../../../shared/tui-agent-selection'
 import { getAgentCatalog } from '@/lib/agent-catalog'
 import { agentChoiceOpensAsChat } from '@/lib/host-chat-program'
 import { useAppStore } from '@/store'
@@ -88,7 +91,10 @@ export function AgentLaunchSettingsCatalog({
     isRefreshing,
     refresh
   } = useDetectedAgents(detectionTarget)
-  const detectedIds = useMemo(() => (detected ? new Set(detected) : null), [detected])
+  const detectedIds = useMemo(
+    () => (detected ? new Set(collapsePreferredAgentAliases(detected)) : null),
+    [detected]
+  )
   useHostStructuredAgentsVersion()
   const installedHere = useAppStore(readNativeDetectedAgents)
   const workspace =
@@ -96,11 +102,13 @@ export function AgentLaunchSettingsCatalog({
       ? { kind: 'git-worktree' as const, runtimeEnvironmentId: detectionTarget.environmentId }
       : { kind: 'floating' as const }
   useChatProgramFacts(workspace, detectionTarget.kind !== 'ssh')
-  const chosen = settings.defaultTuiAgent
+  const chosen = settings.universalChatDefault ? 'universal' : settings.defaultTuiAgent
   // The saved default reads as available where it opens as a chat without its CLI.
   const defaultOpensAsChat = useAppStore((state) =>
     chosen && chosen !== 'blank' && detectionTarget.kind !== 'ssh'
-      ? agentChoiceOpensAsChat(state, chosen, workspace, detected)
+      ? chosen === 'universal'
+        ? true
+        : agentChoiceOpensAsChat(state, chosen, workspace, detected)
       : false
   )
   const catalog = getAgentCatalog()
@@ -234,7 +242,7 @@ export function AgentLaunchSettingsCatalog({
   return (
     <>
       <AgentDefaultSetting
-        defaultAgent={settings.defaultTuiAgent}
+        defaultAgent={chosen}
         detectedIds={detectedIds}
         enabledDetectedAgents={detectedAgents.filter((agent) =>
           isTuiAgentEnabled(agent.id, settings.disabledTuiAgents)
@@ -248,7 +256,7 @@ export function AgentLaunchSettingsCatalog({
         opensAs={
           local
             ? buildDefaultAgentOpensAs({
-                defaultAgent: settings.defaultTuiAgent,
+                defaultAgent: chosen === 'universal' ? null : chosen,
                 settings: local.settings,
                 updateSettings: local.updateSettings,
                 installedHere

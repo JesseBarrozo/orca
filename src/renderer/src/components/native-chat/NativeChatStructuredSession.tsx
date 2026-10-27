@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Universal Chat extends the shared native session surface. */
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './use-native-chat-store-appearance-style'
@@ -298,7 +299,11 @@ export function NativeChatStructuredSession(
             {...(readFailure?.named ? { headline: readFailure.text } : {})}
           />
         ) : viewState.kind === 'empty' ? (
-          <NativeChatEmptyPane slot={install.slot} agent={props.agent} />
+          <NativeChatEmptyPane
+            slot={install.slot}
+            agent={props.agent}
+            emptyStateCopy={props.emptyStateCopy}
+          />
         ) : (
           <NativeChatRewindContext.Provider value={controller.rewind.surface}>
             <NativeChatOrcaStopContext.Provider value={continuation.view}>
@@ -400,6 +405,8 @@ export function NativeChatStructuredSession(
               unavailableHint={install.unavailableHint}
               steerQueued={stopControls.stopping ? undefined : submits.queuedMessages.steerNewest}
               structuredTransport={structuredTransport}
+              composerAccessory={props.composerAccessory}
+              hideNativeModelPicker={props.hideNativeModelPicker}
               launchSeed={{ ...launchDraftSignal, ownsTabWideLaunchDraft: true }}
               notices={notices}
               recallSource={{ messages: session.messages, withoutImageMarkers: true }}

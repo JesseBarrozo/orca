@@ -31,6 +31,7 @@ import type { TuiAgent } from '../../../../../shared/tui-agent'
 import { isTuiAgent } from '../../../../../shared/tui-agent-config'
 import { LOCAL_EXECUTION_HOST_ID } from '../../../../../shared/execution-host'
 import { forgetDesktopCreatedServerTab } from '@/lib/desktop-created-server-tabs'
+import { callRuntimeRpc } from '@/runtime/runtime-rpc-client'
 
 export function createTabsCloseActions(
   set: TabsSliceSet,
@@ -69,6 +70,14 @@ export function createTabsCloseActions(
           hasStructuredAgentSessionLaunchCancellationTombstone(worktreeId, tab.entityId)
         const target = structuredAgentSessionTargetForTab(state, tab)
         if (target) {
+          // Omni owns a provider-neutral session in addition to the structured provider
+          // session. Close that owner explicitly here; the pane itself must not close it on
+          // transient React remounts (model/harness changes and retained-pane updates).
+          if (tab.agentSessionAgent === 'universal') {
+            void callRuntimeRpc(target, 'universalChat.close', { sessionId: tab.entityId }).catch(
+              () => undefined
+            )
+          }
           if (provisional) {
             clearWebSessionFocusIntentIfMatches(
               structuredAgentSessionFocusOwner(target),

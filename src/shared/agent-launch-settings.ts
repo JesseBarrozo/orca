@@ -1,6 +1,7 @@
 import { agentEnvironmentMutationUpdates, choiceUpdate } from './agent-launch-environment-updates'
 import type { GlobalSettings } from './global-settings-types'
 import type { TuiAgent } from './tui-agent'
+import type { DefaultAgent } from './default-agent'
 import { buildDefaultAgentSettingsUpdate } from './default-agent-settings'
 import {
   buildAgentAvailabilitySettingsUpdate,
@@ -34,6 +35,7 @@ export type AgentLaunchSettingsSource = Partial<
   Pick<
     GlobalSettings,
     | 'defaultTuiAgent'
+    | 'universalChatDefault'
     | 'newWorkspaceSetupOnly'
     | 'disabledTuiAgents'
     | 'agentCmdOverrides'
@@ -47,6 +49,7 @@ export type AgentLaunchSettingsSource = Partial<
 
 export type AgentLaunchSettings = {
   defaultTuiAgent: GlobalSettings['defaultTuiAgent']
+  universalChatDefault: boolean
   newWorkspaceSetupOnly?: boolean
   disabledTuiAgents: TuiAgent[]
   agentCmdOverrides: NonNullable<GlobalSettings['agentCmdOverrides']>
@@ -65,7 +68,7 @@ export type AgentLaunchSettings = {
 }
 
 export type AgentLaunchSettingsMutation =
-  | { type: 'default'; agent: GlobalSettings['defaultTuiAgent']; setupOnly?: boolean }
+  | { type: 'default'; agent: DefaultAgent; setupOnly?: boolean }
   | { type: 'availability'; agent: TuiAgent; enabled: boolean }
   | {
       type: 'permissions'
@@ -99,6 +102,7 @@ export function projectAgentLaunchSettings(
   const permissionMode = resolveAgentPermissionModeSummary(composed)
   return {
     defaultTuiAgent: settings.defaultTuiAgent ?? null,
+    universalChatDefault: settings.universalChatDefault === true,
     newWorkspaceSetupOnly: false,
     disabledTuiAgents: normalizeDisabledTuiAgents(settings.disabledTuiAgents),
     agentCmdOverrides: { ...settings.agentCmdOverrides },
@@ -136,7 +140,9 @@ export function agentLaunchSettingsMutationUpdates(
 ): AgentLaunchSettingsSource {
   switch (mutation.type) {
     case 'default':
-      return buildDefaultAgentSettingsUpdate(mutation.agent)
+      return mutation.agent === 'universal'
+        ? { defaultTuiAgent: null, universalChatDefault: true, newWorkspaceSetupOnly: false }
+        : { ...buildDefaultAgentSettingsUpdate(mutation.agent), universalChatDefault: false }
     case 'availability':
       return buildAgentAvailabilitySettingsUpdate(
         {

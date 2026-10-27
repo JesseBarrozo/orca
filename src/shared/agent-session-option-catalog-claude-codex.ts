@@ -153,6 +153,16 @@ const CODEX_EFFORT_CHOICES = [
   { value: 'ultra', label: 'Ultra' }
 ]
 
+/**
+ * Models that are supported by the Codex account family but may be omitted by
+ * older `model/list` responses. Keep these in the shared seed so settings and
+ * the universal chat can expose them consistently until live discovery catches
+ * up.
+ */
+export const CODEX_UNIVERSAL_FALLBACK_MODELS: CatalogModel[] = [
+  { id: 'gpt-6-astra', label: 'GPT-6 Astra', supportsAutoMode: true, options: [] }
+]
+
 // Why: Codex can clamp higher values, so expose only each model's advertised levels.
 function codexEffort(ceiling: 'xhigh' | 'max' | 'ultra'): CatalogOption {
   const ceilingIndex = CODEX_EFFORT_CHOICES.findIndex((choice) => choice.value === ceiling)
@@ -179,6 +189,7 @@ export const CODEX_SESSION_OPTION_CATALOG: AgentSessionOptionCatalog = {
   hostListingNamesConfiguredModel: true,
   // Auth scopes Codex access; keep a short seed and admit unknown persisted IDs.
   models: [
+    ...CODEX_UNIVERSAL_FALLBACK_MODELS,
     { id: 'gpt-5.6-sol', label: 'GPT-5.6 Sol', options: [codexEffort('ultra')] },
     { id: 'gpt-5.6-terra', label: 'GPT-5.6 Terra', options: [codexEffort('ultra')] },
     { id: 'gpt-5.6-luna', label: 'GPT-5.6 Luna', options: [codexEffort('max')] },

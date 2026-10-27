@@ -97,6 +97,10 @@ export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportO
   attentionDelivery?: StructuredAttentionMobileDelivery
   /** Resolve the account home launch would pin for catalog reads without a session; absent disables catalogs. */
   resolveAgentAccountHome?: RuntimeAgentAccountHomeResolver
+  /** Read the persisted model visibility preferences when Auto builds its pool. */
+  getDisabledNativeChatModelKeys?: () => readonly string[] | undefined
+  /** Read the persisted Universal Chat provider visibility preferences when Auto builds its pool. */
+  getDisabledNativeChatProviders?: () => readonly string[] | undefined
 } & Pick<StructuredAgentSessionHostDeps, 'onRequestFailure' | 'statusSink'>
 
 let installing: Promise<InstalledRuntime> | null = null
@@ -268,7 +272,9 @@ async function installOnJournal(
       agents,
       registrations: STRUCTURED_AGENT_RUNTIME_REGISTRATIONS,
       deps,
-      environment: envResolvers
+      environment: envResolvers,
+      getDisabledNativeChatModelKeys: deps.getDisabledNativeChatModelKeys,
+      getDisabledNativeChatProviders: deps.getDisabledNativeChatProviders
     }))
   })
   if (deps.attentionDelivery) {

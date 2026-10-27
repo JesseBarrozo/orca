@@ -37,6 +37,22 @@ afterEach(() => {
 })
 
 describe('runExternalAutomationAction', () => {
+  it('runs local OpenClaw lifecycle actions through the CLI', async () => {
+    await runExternalAutomationAction({
+      managerId: 'openclaw:local',
+      provider: 'openclaw',
+      target: { type: 'local' },
+      jobId: 'job-1',
+      action: 'run'
+    })
+
+    expect(runProcessMock).toHaveBeenCalledWith({
+      program: 'openclaw',
+      args: ['cron', 'run', 'job-1'],
+      timeoutMs: 30_000
+    })
+  })
+
   it('rejects job IDs that could be parsed as CLI options', async () => {
     await expect(
       runExternalAutomationAction({
@@ -91,6 +107,22 @@ describe('runExternalAutomationAction', () => {
     ).rejects.toThrow('Unsupported external automation action.')
 
     expect(runProcessMock).not.toHaveBeenCalled()
+  })
+
+  it('maps OpenClaw lifecycle actions through its cron CLI names', async () => {
+    await runExternalAutomationAction({
+      managerId: 'openclaw:local',
+      provider: 'openclaw',
+      target: { type: 'local' },
+      jobId: 'job-1',
+      action: 'pause'
+    })
+
+    expect(runProcessMock).toHaveBeenCalledWith({
+      program: 'openclaw',
+      args: ['cron', 'disable', 'job-1'],
+      timeoutMs: 30_000
+    })
   })
 
   it('refuses actions on an SSH host without launching locally', async () => {

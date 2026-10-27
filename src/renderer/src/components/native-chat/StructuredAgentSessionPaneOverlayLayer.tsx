@@ -8,7 +8,9 @@ import {
 } from '@/runtime/structured-agent-session-owner'
 import { RetainedPaneHost } from '../tab-group/RetainedPaneHost'
 import NativeChatView from './NativeChatView'
+import { UniversalChatPane } from './UniversalChatPane'
 import { isStructuredTab } from '../../../../shared/structured-agent-session-tab'
+import { universalChatSessionIdFromEntity } from '@/lib/launch-universal-chat-in-new-tab'
 
 type StructuredAgentSessionTab = Tab & {
   contentType: 'agent-session'
@@ -39,6 +41,10 @@ const StructuredAgentSessionOverlaySlot = memo(function StructuredAgentSessionOv
   if (!target) {
     return null
   }
+  const universalSessionId =
+    tab.agentSessionAgent === 'universal'
+      ? tab.entityId
+      : universalChatSessionIdFromEntity(tab.entityId)
   return (
     <RetainedPaneHost
       groupId={groupId}
@@ -47,16 +53,27 @@ const StructuredAgentSessionOverlaySlot = memo(function StructuredAgentSessionOv
       data-structured-agent-session-overlay-tab-id={tab.id}
       onFocusOwningGroup={onFocusOwningGroup}
     >
-      <NativeChatView
-        mode="structured"
-        tabId={tab.id}
-        groupId={groupId}
-        sessionId={tab.entityId}
-        agent={tab.agentSessionAgent}
-        isVisible={isActive}
-        isFocusedGroup={isFocusedGroup}
-        target={target}
-      />
+      {universalSessionId ? (
+        <UniversalChatPane
+          sessionId={universalSessionId}
+          tabId={tab.id}
+          groupId={groupId}
+          target={target}
+          isVisible={isActive}
+          isFocusedGroup={isFocusedGroup}
+        />
+      ) : (
+        <NativeChatView
+          mode="structured"
+          tabId={tab.id}
+          groupId={groupId}
+          sessionId={tab.entityId}
+          agent={tab.agentSessionAgent}
+          isVisible={isActive}
+          isFocusedGroup={isFocusedGroup}
+          target={target}
+        />
+      )}
     </RetainedPaneHost>
   )
 })

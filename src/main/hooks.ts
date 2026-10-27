@@ -10,7 +10,6 @@ import { promptGuardShellEnv } from './git/runner'
 import { dropIncoherentCondaActivationEnv } from './pty/conda-activation-env'
 import { toLinuxPath } from './wsl'
 import { runWslProcess } from './wsl/wsl-runner'
-import { windowsFsPath } from './wsl/wsl-unc-drive-fs-path'
 import type { HookRuntimeTarget } from './hook-runtime-target'
 import type { OrcaHooks } from '../shared/orca-yaml-hook-types'
 import type { Repo } from '../shared/repo-types'
@@ -99,13 +98,8 @@ function getHookShell(): string | undefined {
 
 export { parseOrcaYaml }
 
-// A UNC drive-mount repo's file opens only through its drive path.
-function orcaYamlPath(repoPath: string): string {
-  return windowsFsPath(join(repoPath, 'orca.yaml'))
-}
-
 export function loadHooks(repoPath: string): OrcaHooks | null {
-  const yamlPath = orcaYamlPath(repoPath)
+  const yamlPath = join(repoPath, 'orca.yaml')
   if (!existsSync(yamlPath)) {
     return null
   }
@@ -119,7 +113,7 @@ export function loadHooks(repoPath: string): OrcaHooks | null {
 }
 
 export function hasHooksFile(repoPath: string): boolean {
-  return existsSync(orcaYamlPath(repoPath))
+  return existsSync(join(repoPath, 'orca.yaml'))
 }
 
 // Unknown keys suggest a newer config format; let the UI offer an update.
@@ -134,7 +128,7 @@ const RECOGNIZED_ORCA_YAML_KEYS = new Set([
 
 export function hasUnrecognizedOrcaYamlKeys(repoPath: string): boolean {
   try {
-    const content = readFileSync(orcaYamlPath(repoPath), 'utf-8')
+    const content = readFileSync(join(repoPath, 'orca.yaml'), 'utf-8')
     for (const line of iterateLfScriptLines(content)) {
       // A bare key: is valid YAML when its block value follows on the next line.
       const m = line.match(/^([A-Za-z][A-Za-z0-9_-]*):(\s|$)/)

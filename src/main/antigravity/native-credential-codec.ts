@@ -88,7 +88,20 @@ export type AntigravityNativeCredential = {
   contents: string
   authMethod: string
   identity: AntigravityCredentialIdentity | null
+  accessToken: string
   refreshToken: string | null
+  expiresAt: number | null
+}
+
+function readExpiry(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value > 10_000_000_000 ? value : value * 1000
+  }
+  if (typeof value !== 'string' || !value.trim()) {
+    return null
+  }
+  const parsed = Date.parse(value)
+  return Number.isFinite(parsed) ? parsed : null
 }
 
 export function parseAntigravityNativeCredential(contents: string): AntigravityNativeCredential {
@@ -116,9 +129,11 @@ export function parseAntigravityNativeCredential(contents: string): AntigravityN
     contents,
     authMethod: value.auth_method,
     identity: readIdentity(value.id_token ?? value.token.id_token),
+    accessToken: value.token.access_token,
     refreshToken:
       typeof value.token.refresh_token === 'string' && value.token.refresh_token
         ? value.token.refresh_token
-        : null
+        : null,
+    expiresAt: readExpiry(value.token.expiry)
   }
 }

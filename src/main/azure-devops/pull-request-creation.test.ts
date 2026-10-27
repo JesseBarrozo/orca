@@ -1,5 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createAzureDevOpsPullRequest } from './pull-request-creation'
+import {
+  createAzureDevOpsPullRequest,
+  isAzureDevOpsReviewCreationAuthenticated
+} from './pull-request-creation'
 import { _resetAzureDevOpsPreviewApiVersionCache } from './azure-devops-api-request'
 import { _resetAzureDevOpsRepoRefCache } from './repository-ref'
 import { REMOTE_URL_PROBE_TIMEOUT_MS } from '../git/remote-url-probe'
@@ -35,6 +38,11 @@ describe('Azure DevOps pull request creation', () => {
     process.env = OLD_ENV
     globalThis.fetch = OLD_FETCH
     _resetAzureDevOpsRepoRefCache()
+  })
+
+  it('treats token-only auth as sufficient for repo-scoped creation', () => {
+    delete process.env.ORCA_AZURE_DEVOPS_API_BASE_URL
+    expect(isAzureDevOpsReviewCreationAuthenticated()).toBe(true)
   })
 
   it('posts a pull request create body to the repository REST endpoint', async () => {

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- The persisted settings contract keeps compatibility fields together. */
 import type { TelemetrySettings } from './telemetry-settings-types'
 import type { BrowserProfileScope } from './browser-profile-scope'
 import type { GlobalSettingsBase } from './global-settings-base'
@@ -219,6 +220,8 @@ export type GlobalSettings = GlobalSettingsBase & {
   nativeChatShellEnvironmentVariables?: string[]
   /** Last explicit native-chat model + option selections; live panes need an applied/dispatched record before showing a value. */
   nativeChatSessionOptions?: PersistedNativeChatSessionOptions
+  disabledNativeChatModelKeys?: string[]
+  disabledNativeChatProviders?: TuiAgent[]
   /** Legacy client permission control and host-support marker; kept valid for old peers. */
   nativeChatPermissionMode?: AgentChatPermissionMode
   /** Extra launcher rows for the worktree "Open in" submenu. VS Code is always shown first. */
@@ -326,7 +329,9 @@ export type GlobalSettings = GlobalSettingsBase & {
   terminalModelQueryAuthority?: boolean
   /** New-workspace agent: null chooses first detected, blank launches no agent, otherwise select that TuiAgent. */
   defaultTuiAgent: TuiAgent | 'blank' | null
-  /** @deprecated Retained for older peers; setup-only is now a per-create choice. */
+  /** Provider-neutral Universal Chat is the default surface for new agent sessions. */
+  universalChatDefault?: boolean
+  universalChatDefaultHarness: TuiAgent | 'auto'
   newWorkspaceSetupOnly?: boolean
   /** Agents hidden from picker/auto-launch; detection stays a raw PATH snapshot. */
   disabledTuiAgents: TuiAgent[]
@@ -486,15 +491,11 @@ export type GlobalSettings = GlobalSettingsBase & {
   gitlabProjects?: GitLabProjectSettings
   /** Anonymous telemetry consent, identity, frozen experiments, and daily usage limits; optional before migration. */
   telemetry?: TelemetrySettings
-  /** One-shot cohort marker for the tab-switch keybinding swap. 'pending' =
-   *  pre-existing install (seed pins old chords, then flips to 'done'); 'done' = fresh install. */
+  /** One-shot cohort marker for the tab-switch keybinding swap. */
   tabSwitchKeybindingSeed?: 'pending' | 'done'
   /** Voice/dictation settings; persistence merge hydrates getDefaultSettings() values for older profiles. */
   voice?: VoiceSettings
-  /** Transcript full-text search consent + retention. Absent means off; nothing indexes until the user opts in. */
   aiVaultSearch?: AiVaultSearchSettings
 }
-
-// Retain one import entry point while keeping feature shapes separate from the max-lines-limited settings module.
 export type { GhosttyImportPreview } from './ghostty-import-preview'
 export type { OrcaWorkspaceLayout } from './orca-workspace-layout'

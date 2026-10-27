@@ -138,6 +138,13 @@ beforeEach(() => {
 })
 
 describe('QuickLaunchAgentMenuItems', () => {
+  it('shows the provider-neutral Universal Chat entry with the Orca logo', () => {
+    const html = renderAgentMenuItems()
+
+    expect(html).toContain('Omni')
+    expect(html).toContain('object-contain')
+  })
+
   it('renders the new-agent shortcut next to the configured default agent only', () => {
     shortcutLabelMock.mockReturnValue('⌘⌥T')
 

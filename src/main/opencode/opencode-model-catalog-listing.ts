@@ -1,10 +1,11 @@
-// OpenCode 1.x models --verbose emits each provider/model ID followed by indented JSON.
+// OpenCode's installed CLI exposes the current catalog through `models`. Some
+// releases also emit metadata after each id; the parser accepts both forms.
 
 import { z } from 'zod'
 import type { AgentSessionModelOption } from '../../shared/agent-session-wire'
 import { assertJsonTextStructureWithinLimits } from '../../shared/json-text-structure-limit'
 
-export const OPENCODE_MODEL_LISTING_ARGS = ['models', '--verbose'] as const
+export const OPENCODE_MODEL_LISTING_ARGS = ['models'] as const
 
 // The default sentinel means no variant override.
 const DEFAULT_VARIANT = 'default'

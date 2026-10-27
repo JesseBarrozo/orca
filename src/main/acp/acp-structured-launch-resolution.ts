@@ -43,6 +43,7 @@ import {
 import type { AcpLaunchSpec } from './acp-launch-specs'
 import { acpSessionNotRestoredItem } from './acp-session-reopen-failure'
 import { loadAcpVisualsSkill, type AcpLaunchVisualsDeps } from './acp-structured-launch-visuals'
+import { applyOpenCodeUniversalChatGatewayEnvironment } from '../runtime/universal-chat-gateway-session'
 
 export type AcpStructuredLaunch = {
   spec: AcpLaunchSpec
@@ -239,7 +240,11 @@ export function acpStructuredLaunchPart(
             }
           : null
       },
-      env: withNativeChatVisualsEnv({ ...env, ...skill?.env }, skill ? visuals : null),
+      env: applyOpenCodeUniversalChatGatewayEnvironment(
+        identity.sessionId,
+        withNativeChatVisualsEnv({ ...env, ...skill?.env }, skill ? visuals : null),
+        spec.agent
+      ),
       inheritedEnvToDelete: [
         ...STRUCTURED_CHILD_ENV_TO_DELETE,
         ...envToDelete,

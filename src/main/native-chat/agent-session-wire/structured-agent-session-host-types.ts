@@ -26,6 +26,7 @@ import type {
 import type { AgentSessionAttachParams } from './structured-agent-session-attach'
 import type { StructuredAgentSessionStatusSink } from './structured-agent-session-status-feed'
 import type { AgentModelCatalogService } from '../agent-model-catalog/agent-model-catalog-service'
+import type { AutoModelPoolService } from '../universal-terminal/auto-model-pool-service'
 import type { StructuredAgentSessionLogger } from './structured-agent-session-logger'
 import type { StructuredAgentId } from '../../../shared/agent-session-provider-handle'
 import type { StructuredAgentRegistry } from './structured-agent-registry'
@@ -159,6 +160,8 @@ export type StructuredAgentSessionHostDeps = {
   statusSink?: StructuredAgentSessionStatusSink
   /** Absent catalog reads return unknown. */
   modelCatalog?: AgentModelCatalogService
+  /** Main-process provider-neutral pool for Auto/Universal Terminal selection. */
+  autoModelPool?: AutoModelPoolService
   conversationNaming?: StructuredAgentSessionConversationNaming
 }
 

@@ -93,20 +93,12 @@ export function createAgentHookMemorySftp(initialFiles: Record<string, string> =
         done(missing(path))
         return
       }
-      const prefix = `${path}/`
-      const names = [...fs.files.keys(), ...fs.dirs]
-        .filter((entry) => entry.startsWith(prefix))
-        .map((entry) => entry.slice(prefix.length).split('/')[0])
-      done(
-        null,
-        [...new Set(names)].map((filename) => ({ filename }))
-      )
+      done(null, [])
     },
     mkdir: (path: string, done: (error: unknown) => void) => {
       fs.dirs.add(path)
       done(null)
     }
-  }
-  // oxlint-disable-next-line typescript/consistent-type-assertions -- SAFETY: installers call only these members.
-  return { sftp: sftp as unknown as SFTPWrapper, fs }
+  } as unknown as SFTPWrapper
+  return { sftp, fs }
 }

@@ -30,6 +30,6 @@ export function getMarkdownRenderMode({
     return 'source'
   }
 
-  // Preview preserves unsupported syntax; Source remains available for editing.
-  return hasRichModeUnsupportedContent ? 'preview' : 'rich-editor'
+  // Unsafe rich documents need an editable source fallback; read-only preview has its own explicit mode.
+  return hasRichModeUnsupportedContent ? 'source' : 'rich-editor'
 }

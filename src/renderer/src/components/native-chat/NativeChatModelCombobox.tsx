@@ -93,6 +93,7 @@ export function NativeChatModelCombobox({
                   <NativeChatSessionOptionChoiceBody
                     label={label}
                     description={choice.description}
+                    badge={choice.badge}
                   />
                   {/* Reserve the check slot so selecting a model cannot rewrap its label. */}
                   <span className="ml-auto flex size-3.5 shrink-0 items-center justify-center">

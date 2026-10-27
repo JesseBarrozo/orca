@@ -74,6 +74,7 @@ export const CLI_COMMAND_NAMES = [
   'terminal',
   'terminal-daemon',
   'type',
+  'universal',
   'uncheck',
   'upload',
   'viewport',

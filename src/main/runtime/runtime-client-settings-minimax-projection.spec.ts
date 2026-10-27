@@ -31,6 +31,21 @@ describe('RuntimeClientSettingsController MiniMax projection', () => {
     expect(getProjected({ minimaxEndpoint: 'overseas' }).minimaxEndpoint).toBe('overseas')
   })
 
+  it('projects disabled Auto model keys and persists updates', async () => {
+    const settings = createGlobalSettingsFixture({
+      workspaceDir: '/w',
+      disabledNativeChatModelKeys: ['claude:haiku']
+    })
+    const store = {
+      getSettings: () => settings,
+      updateSettings: (updates: Partial<GlobalSettings>) => Object.assign(settings, updates)
+    }
+    const controller = new RuntimeClientSettingsController(store)
+    expect(controller.get().disabledNativeChatModelKeys).toEqual(['claude:haiku'])
+    await controller.update({ disabledNativeChatModelKeys: ['codex:fast'] })
+    expect(controller.get().disabledNativeChatModelKeys).toEqual(['codex:fast'])
+  })
+
   it('falls back to overseas when the host has no persisted endpoint', () => {
     const settings = createGlobalSettingsFixture({ workspaceDir: '/w' })
     delete (settings as Partial<GlobalSettings>).minimaxEndpoint

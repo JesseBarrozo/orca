@@ -36,6 +36,10 @@ import {
   pendingAgentSessionRewindFork,
   type AgentSessionRewindFork
 } from '../../shared/agent-session-rewind'
+import {
+  applyUniversalChatGatewayEnvironment,
+  universalChatGatewaySession
+} from '../runtime/universal-chat-gateway-session'
 
 export { claudeSessionIdForOrcaSession }
 
@@ -160,6 +164,14 @@ export function claudeStructuredLaunchPart(
 ): StructuredAgentLaunchPartResolver<ClaudeStructuredLaunch> {
   return async (basis, identity) => {
     const { record } = basis
+    const requestedModel = record.options?.model
+    const expectsUniversalGateway =
+      requestedModel?.startsWith('agy/') || requestedModel?.startsWith('orca-universal/')
+    if (expectsUniversalGateway && !universalChatGatewaySession(identity.sessionId)) {
+      throw new Error(
+        'La route gateway Omni est introuvable pour cette session. Le harness Claude a été bloqué pour éviter un fallback silencieux vers Opus.'
+      )
+    }
     const accountHome = requireLegacyAgentSessionAccountHome(record.accountHome)
     const router = getClaudeProfileRouter()
     const active = activeProviderContext(record)
@@ -224,13 +236,16 @@ export function claudeStructuredLaunchPart(
     const { command, env, account } = await resolveClaudeStructuredInvocation(
       envDeps,
       (base) =>
-        withNativeChatVisualsEnv(
-          {
-            ...base,
-            // The turn translator relies on Claude's authoritative idle frame when no result arrives.
-            [CLAUDE_SESSION_STATE_EVENTS_ENV]: '1'
-          },
-          visuals?.visuals ?? null
+        applyUniversalChatGatewayEnvironment(
+          identity.sessionId,
+          withNativeChatVisualsEnv(
+            {
+              ...base,
+              // The turn translator relies on Claude's authoritative idle frame when no result arrives.
+              [CLAUDE_SESSION_STATE_EVENTS_ENV]: '1'
+            },
+            visuals?.visuals ?? null
+          )
         ),
       sources,
       { runtimeOnPath: false }

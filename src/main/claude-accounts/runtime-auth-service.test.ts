@@ -33,7 +33,6 @@ vi.mock('./claude-profile-wsl-router', () => ({
   }
 }))
 vi.mock('./claude-profile-installed-router', () => ({
-  installClaudeObservedConfigDirs: () => {},
   installClaudeProfileRouter: () => {},
   installClaudeWslProfileRouter: () => {}
 }))

@@ -5,6 +5,7 @@ import {
   type TuiAgentConfig,
   type TuiAgentDetectionRuntime
 } from './tui-agent-config'
+import { collapsePreferredAgentAliases } from './tui-agent-selection'
 
 export type TuiAgentDetectionCommand = {
   id: TuiAgent
@@ -70,7 +71,7 @@ export function resolveDetectedTuiAgentIds(
         (command.requiredCommands ?? []).every((required) => foundCommands.has(required))
     )
     .map(({ id }) => id)
-  return [...new Set(detected)]
+  return collapsePreferredAgentAliases(detected)
 }
 
 export function isDetectionUnsupportedInRuntime(

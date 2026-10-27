@@ -273,6 +273,10 @@ export abstract class OrcaRuntimeWithGetWorktreePs extends OrcaRuntimeWithWorktr
       resolveCodexAccountKind: (home) =>
         resolveStructuredCodexAccountKind(home, this.requireStore().getSettings()),
       resolveAgentAccountHome: (agent) => this.resolveStructuredAgentAccountHome(agent),
+      getDisabledNativeChatModelKeys: () =>
+        this.requireStore().getSettings().disabledNativeChatModelKeys ?? [],
+      getDisabledNativeChatProviders: () =>
+        this.requireStore().getSettings().disabledNativeChatProviders ?? [],
       ...(this.prepareCodexCatalogProbeHomeFn
         ? { prepareCodexCatalogProbeHome: this.prepareCodexCatalogProbeHomeFn }
         : {}),

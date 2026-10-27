@@ -1,6 +1,6 @@
 import { resolve, relative, isAbsolute, sep, dirname } from 'node:path'
 import { statSync } from 'node:fs'
-import { realpathAcrossWslDriveMount } from '../../wsl/wsl-unc-drive-fs-path'
+import { realpath } from 'node:fs/promises'
 import { isDefinitiveAbsence } from '../../../shared/definitive-filesystem-absence'
 
 /** Check native-path containment; accept Unicode-equivalent spellings only after proving filesystem identity. */
@@ -81,7 +81,7 @@ export function isPathAbsentError(error: unknown): boolean {
 
 export async function normalizeExistingPath(resolvedPath: string): Promise<string> {
   try {
-    return resolve(await realpathAcrossWslDriveMount(resolvedPath))
+    return resolve(await realpath(resolvedPath))
   } catch (error) {
     if (isENOENT(error)) {
       return resolvedPath

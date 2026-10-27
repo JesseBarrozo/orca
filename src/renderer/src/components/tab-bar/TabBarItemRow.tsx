@@ -17,6 +17,7 @@ import {
   useStructuredChatTabNamingFailure
 } from '@/runtime/structured-conversation-name'
 import { agentTypeToIconAgent } from '@/lib/agent-status'
+import { isUniversalChatTabEntity } from '@/lib/launch-universal-chat-in-new-tab'
 
 // Why only values and `actions`: anything a tab draws must be a compared prop, or a skipped render shows it stale.
 type TabBarItemRowProps = {
@@ -119,7 +120,12 @@ function TabBarItemRow({
     )
   }
   if (item.type === 'agent-session') {
-    const nativeChat = { sessionId: item.data.entityId, agent: item.data.agentSessionAgent }
+    const isUniversal =
+      item.data.agentSessionAgent === 'universal' || isUniversalChatTabEntity(item.data.entityId)
+    const nativeChat = {
+      sessionId: item.data.entityId,
+      agent: isUniversal ? undefined : item.data.agentSessionAgent
+    }
     return (
       <SortableTab
         {...sortableTabProps}
@@ -137,6 +143,7 @@ function TabBarItemRow({
         onToggleExpand={() => {}}
         canSplitTerminal={false}
         nativeChat={nativeChat}
+        omniChat={isUniversal}
         // A tab the user named does not show the generated name, so neither does its failure.
         namingFailure={item.data.customLabel ? null : namingFailure}
       />

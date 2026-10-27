@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- Omni tab identity is rendered alongside the existing tab surface. */
 import { useCallback, useEffect, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable'
 import { X, Minimize2, Pin } from 'lucide-react'
@@ -77,6 +78,8 @@ export type SortableTabProps = {
   nativeChat?: NativeChatTabSession
   /** A native chat whose generated name failed, unless the user named the tab. */
   namingFailure?: StructuredChatTabNamingFailure | null
+  /** Provider-neutral Omni Chat tab uses its own branded icon. */
+  omniChat?: boolean
 }
 
 export default function SortableTab({
@@ -108,7 +111,8 @@ export default function SortableTab({
   onToggleViewMode,
   canSplitTerminal = true,
   nativeChat,
-  namingFailure
+  namingFailure,
+  omniChat = false
 }: SortableTabProps): React.JSX.Element {
   const naming = useNativeChatNamingFailure(namingFailure)
   // Why: agent-completion unread exists even with terminal-attention off; collapse both sources to one primitive so unrelated tabs don't re-render.
@@ -256,6 +260,7 @@ export default function SortableTab({
         showUnreadActivity={showUnreadActivity}
         isActive={isActive}
         progress={programProgress}
+        omniChat={omniChat}
       />
       {isPinned && !isEditing && (
         <Pin className="mr-1 size-3 shrink-0 text-muted-foreground" aria-hidden />

@@ -72,11 +72,11 @@ describe('the model catalog contract on every registration', () => {
       (registration) => registration.modelCatalog(context()).kind === 'probe'
     ).map((registration) => registration.definition.agent)
     expect(Object.keys(probes).sort()).toEqual([...listing].sort())
-    // Every agent registered today but Antigravity lists its models before a chat.
+    // Every registered provider now contributes to the shared Auto/Universal catalog.
     expect(listing.sort()).toEqual(
-      STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map((registration) => registration.definition.agent)
-        .filter((agent) => agent !== 'antigravity')
-        .sort()
+      STRUCTURED_AGENT_RUNTIME_REGISTRATIONS.map(
+        (registration) => registration.definition.agent
+      ).sort()
     )
   })
 
@@ -90,7 +90,7 @@ describe('the model catalog contract on every registration', () => {
     expect([...listingNamesConfiguredModel].sort()).toEqual(['codex'])
   })
 
-  // OpenCode 2.x and OMP list in a session opened in the chat's folder, which a prewarm does not have.
+  // Session-backed providers list in the chat's folder, which a prewarm does not have.
   it('marks the agents whose listing runs in a chat folder', () => {
     const { listsInChatFolder } = registeredModelCatalogDiscovery(
       STRUCTURED_AGENT_RUNTIME_REGISTRATIONS,

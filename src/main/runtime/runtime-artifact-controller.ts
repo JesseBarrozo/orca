@@ -8,7 +8,6 @@ import type {
   ArtifactPublishResult,
   ArtifactWriteRequest
 } from '../../shared/artifacts'
-import { SharingUnavailableOnHostError } from '../../shared/sharing-unavailable-on-host'
 import type { ArtifactCloudService } from '../artifacts/artifact-cloud-service'
 
 export class RuntimeArtifactController {
@@ -16,10 +15,6 @@ export class RuntimeArtifactController {
 
   setService(service: ArtifactCloudService): void {
     this.service = service
-  }
-
-  hasService(): boolean {
-    return this.service !== null
   }
 
   list(options: ArtifactListOptions): Promise<ArtifactCloudOperation<ArtifactListPage>> {
@@ -56,7 +51,7 @@ export class RuntimeArtifactController {
 
   private requireService(): ArtifactCloudService {
     if (!this.service) {
-      throw new SharingUnavailableOnHostError()
+      throw new Error("Artifact sharing isn't available on this Orca server.")
     }
     return this.service
   }

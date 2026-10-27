@@ -6,6 +6,7 @@ import { defineMethod } from '../core'
 import {
   requireInstalledStructuredHost,
   requireStructuredAgentAudience,
+  requireStructuredCapability,
   requireStructuredHost
 } from './structured-agent-session-gate'
 import {
@@ -19,6 +20,7 @@ import { clientReadsOptionsWithoutModel } from './structured-agent-session-polic
 import type { AgentSessionModelCatalogResult } from '../../../../shared/agent-session-wire'
 import { structuredAgentSessionOptionModels } from '../../../native-chat/agent-session-wire/structured-agent-session-option-models'
 import { finishedListingIds } from '../../../../shared/structured-agent-session-options'
+import { UniversalAutoModelPoolParams } from '../../../../shared/rpc-contract/universal-terminal-params'
 
 export const STRUCTURED_AGENT_SESSION_OPTIONS_READ_METHODS = [
   defineMethod({
@@ -104,6 +106,36 @@ export const STRUCTURED_AGENT_SESSION_OPTIONS_READ_METHODS = [
             )
           }
         : listing
+    }
+  }),
+  defineMethod({
+    name: 'agentSession.autoModelPool',
+    permission: 'workspace',
+    params: UniversalAutoModelPoolParams,
+    handler: async (
+      { worktree, profile, waitForListing, includeDisabled, includeDisabledAgents },
+      ctx
+    ) => {
+      requireStructuredCapability(ctx)
+      const host = await requireInstalledStructuredHost(ctx)
+      const autoModelPool = host.deps.autoModelPool
+      if (!autoModelPool) {
+        return []
+      }
+      const workspacePath = worktree
+        ? await ctx.runtime
+            .resolveStructuredAgentSessionLocalWorkspacePath(worktree)
+            .catch(() => null)
+        : null
+      return autoModelPool.read({
+        ...(workspacePath ? { workspacePath } : {}),
+        ...(waitForListing === true ? { waitForListing: true } : {}),
+        ...(includeDisabled === true ? { includeDisabled: true } : {}),
+        ...(includeDisabledAgents === true ? { includeDisabledAgents: true } : {}),
+        // Auto Orca ranks every enabled, available model. `supportsAutoMode` is a provider hint
+        // used for scoring, not a reason to hide an otherwise usable connected model.
+        pool: { profile: profile ?? 'balanced' }
+      })
     }
   })
 ]

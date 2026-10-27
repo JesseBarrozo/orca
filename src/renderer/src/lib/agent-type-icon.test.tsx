@@ -26,4 +26,8 @@ describe('AgentTypeIcon', () => {
   it('still renders the Claude icon for known agents', () => {
     expect(render('claude')).toContain('#D97757')
   })
+
+  it('renders the Omni icon for universal sessions', () => {
+    expect(render('universal')).toContain('omni.svg')
+  })
 })

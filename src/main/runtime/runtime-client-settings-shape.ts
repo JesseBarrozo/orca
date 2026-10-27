@@ -3,10 +3,13 @@
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import type { ExecutionHostId } from '../../shared/execution-host'
 import type { SourceControlAiActionDefaults } from '../../shared/source-control-ai-actions'
+import type { DefaultAgent } from '../../shared/default-agent'
 
 export type RuntimeClientSettings = Pick<
   GlobalSettings,
   | 'defaultTuiAgent'
+  | 'universalChatDefault'
+  | 'universalChatDefaultHarness'
   | 'newWorkspaceSetupOnly'
   | 'disabledTuiAgents'
   | 'agentCmdOverrides'
@@ -34,6 +37,8 @@ export type RuntimeClientSettings = Pick<
   | 'agentSkillSharingEnabled'
   | 'machineName'
   | 'nativeChatPermissionMode'
+  | 'disabledNativeChatModelKeys'
+  | 'disabledNativeChatProviders'
 > & {
   /** Older clients still read these; neither is persisted or accepted as an update. */
   openAgentTabsInChatByDefault?: boolean
@@ -50,29 +55,38 @@ export type RuntimeHostDisplayLabelOverrides = Partial<
   Record<ExecutionHostId, { displayLabel: string }>
 >
 
-export type RuntimeClientSettingsUpdate = Pick<
-  Partial<GlobalSettings>,
-  | 'agentStatusHooksEnabled'
-  | 'claudeSubagentNavigationEnabled'
-  | 'experimentalConnectors'
-  | 'defaultTuiAgent'
-  | 'disabledTuiAgents'
-  | 'agentDefaultArgs'
-  | 'agentDefaultEnv'
-  | 'defaultTaskSource'
-  | 'defaultTaskViewPreset'
-  | 'visibleTaskProviders'
-  | 'defaultRepoSelection'
-  | 'defaultLinearTeamSelection'
-  | 'githubProjects'
-  | 'experimentalNewWorktreeCardStyle'
-  | 'compactWorktreeCards'
-  | 'minimaxGroupId'
-  | 'minimaxUsageModels'
-  | 'minimaxEndpoint'
-  | 'zcodePlanSite'
-  | 'prBotAuthorOverrides'
-  | 'worktreeVisibilityDefaults'
-  | 'machineName'
-  | 'nativeChatPermissionMode'
->
+export type RuntimeClientSettingsUpdate = Omit<
+  Pick<
+    Partial<GlobalSettings>,
+    | 'agentStatusHooksEnabled'
+    | 'claudeSubagentNavigationEnabled'
+    | 'experimentalConnectors'
+    | 'defaultTuiAgent'
+    | 'universalChatDefault'
+    | 'universalChatDefaultHarness'
+    | 'disabledTuiAgents'
+    | 'agentDefaultArgs'
+    | 'agentDefaultEnv'
+    | 'defaultTaskSource'
+    | 'defaultTaskViewPreset'
+    | 'visibleTaskProviders'
+    | 'defaultRepoSelection'
+    | 'defaultLinearTeamSelection'
+    | 'githubProjects'
+    | 'experimentalNewWorktreeCardStyle'
+    | 'compactWorktreeCards'
+    | 'minimaxGroupId'
+    | 'minimaxUsageModels'
+    | 'minimaxEndpoint'
+    | 'zcodePlanSite'
+    | 'prBotAuthorOverrides'
+    | 'worktreeVisibilityDefaults'
+    | 'machineName'
+    | 'nativeChatPermissionMode'
+    | 'disabledNativeChatModelKeys'
+    | 'disabledNativeChatProviders'
+  >,
+  'defaultTuiAgent'
+> & {
+  defaultTuiAgent?: DefaultAgent
+}

@@ -64,4 +64,17 @@ describe('tui agent detection commands', () => {
     expect(getTuiAgentDetectionProbeCommands(commands, 'wsl')).toEqual([])
     expect(resolveDetectedTuiAgentIds(commands, new Set(['orca-ide', 'claude']), 'wsl')).toEqual([])
   })
+
+  it('exposes only OpenCode 2 when both OpenCode aliases are detected', () => {
+    const commands = KNOWN_TUI_AGENT_DETECTION_COMMANDS.filter(
+      (command) => command.id === 'opencode' || command.id === 'opencode2'
+    )
+
+    expect(
+      resolveDetectedTuiAgentIds(commands, new Set(['opencode', 'opencode2']), 'darwin')
+    ).toEqual(['opencode2'])
+    expect(resolveDetectedTuiAgentIds(commands, new Set(['opencode']), 'darwin')).toEqual([
+      'opencode'
+    ])
+  })
 })

@@ -1,5 +1,6 @@
 import { AgentStateDot } from '@/components/AgentStateDot'
 import { AgentIcon } from '@/lib/agent-catalog'
+import { OmniIcon } from '@/components/status-bar/icons'
 import { cn } from '@/lib/utils'
 import type { TerminalTab } from '../../../../shared/terminal-tab-types'
 import type { TerminalAgent } from '../../../../shared/terminal-agent'
@@ -19,6 +20,7 @@ type TerminalTabLeadingIconProps = {
   isActive: boolean
   /** Program-reported 0–100 for the tab's live work; fills the state ring. */
   progress?: number
+  omniChat?: boolean
 }
 
 type TerminalTabAgentIdentityIconProps = {
@@ -49,7 +51,8 @@ export function TerminalTabLeadingIcon({
   shell,
   showUnreadActivity,
   isActive,
-  progress
+  progress,
+  omniChat = false
 }: TerminalTabLeadingIconProps): React.JSX.Element {
   if (showUnreadActivity) {
     return (
@@ -62,7 +65,11 @@ export function TerminalTabLeadingIcon({
         className="mr-1 inline-flex shrink-0 items-center gap-1"
       >
         <FilledBellIcon className="size-3 text-amber-500 drop-shadow-sm" />
-        {agent ? <TerminalTabAgentIdentityIcon agent={agent} isActive={isActive} /> : null}
+        {omniChat ? (
+          <OmniIcon size={12} />
+        ) : agent ? (
+          <TerminalTabAgentIdentityIcon agent={agent} isActive={isActive} />
+        ) : null}
       </span>
     )
   }
@@ -79,7 +86,19 @@ export function TerminalTabLeadingIcon({
         {/* Why: the state glyph is self-describing and the tab title already has a tooltip; hover here stays quiet. */}
         <AgentStateDot state={dotState} size="md" title={null} progress={progress} />
         {/* Keep agent identity beside activity so parallel tabs remain distinguishable. */}
-        {agent ? <TerminalTabAgentIdentityIcon agent={agent} isActive={isActive} /> : null}
+        {omniChat ? (
+          <OmniIcon size={12} />
+        ) : agent ? (
+          <TerminalTabAgentIdentityIcon agent={agent} isActive={isActive} />
+        ) : null}
+      </span>
+    )
+  }
+
+  if (omniChat) {
+    return (
+      <span className={`mr-1 inline-flex shrink-0 ${isActive ? '' : 'opacity-70'}`} aria-hidden>
+        <OmniIcon size={12} />
       </span>
     )
   }

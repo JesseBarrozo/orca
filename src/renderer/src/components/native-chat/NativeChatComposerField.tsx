@@ -75,6 +75,8 @@ export type NativeChatComposerFieldProps = {
   onStop?: () => void
   sessionOptionsSurface: SessionOptionsSurface | null
   sessionOptionsSnapshot: SessionOptionDescriptor[]
+  composerAccessory?: React.ReactNode
+  hideNativeModelPicker?: boolean
   contextUsage?: NativeChatContextUsageSummary | null
   sessionOptionsPickerRequest?: NativeChatOptionPickerRequest | null
   goalMode?: NativeChatComposerGoalMode
@@ -156,6 +158,8 @@ export function NativeChatComposerField({
   onStop,
   sessionOptionsSurface,
   sessionOptionsSnapshot,
+  composerAccessory,
+  hideNativeModelPicker,
   contextUsage,
   sessionOptionsPickerRequest,
   goalMode,
@@ -349,6 +353,8 @@ export function NativeChatComposerField({
                 sessionOptionsSnapshot={sessionOptionsSnapshot}
                 contextUsage={contextUsage}
                 sessionOptionsPickerRequest={sessionOptionsPickerRequest}
+                composerAccessory={composerAccessory}
+                hideNativeModelPicker={hideNativeModelPicker}
                 focusComposer={focusComposer}
                 onExitGoalMode={goalMode?.active ? goalMode.exit : undefined}
                 {...(agent ? { agent } : {})}

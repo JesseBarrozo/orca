@@ -4,12 +4,18 @@ import { formatAgentTypeLabel } from '@/lib/agent-status'
 import { NATIVE_CHAT_EMPTY_STATE_COPY } from '../../../../shared/native-chat-empty-state'
 import type { NativeChatSession } from '../../../../shared/native-chat-types'
 
+export type NativeChatEmptyStateCopy = {
+  title: string
+  subtitle?: string | null
+}
+
 export function NativeChatEmptyState({
   kind,
   message,
   headline,
   agent,
-  retrying = false
+  retrying = false,
+  customCopy
 }: {
   kind: 'loading' | 'empty' | 'error' | 'not-agent'
   message?: string
@@ -18,8 +24,10 @@ export function NativeChatEmptyState({
   agent?: NativeChatSession['agent']
   /** Structured reads retry automatically; show a loading failure without directing users back to a terminal. */
   retrying?: boolean
+  /** Optional surface-specific copy while retaining the shared empty-state layout. */
+  customCopy?: NativeChatEmptyStateCopy
 }): React.JSX.Element {
-  const copy = emptyStateCopy(kind, { message, headline }, agent, retrying)
+  const copy = customCopy ?? emptyStateCopy(kind, { message, headline }, agent, retrying)
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
       <div

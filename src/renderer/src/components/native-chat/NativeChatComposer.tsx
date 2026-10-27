@@ -1,3 +1,4 @@
+/* eslint-disable max-lines -- The native composer remains the shared extension point for provider controls. */
 import { useNativeChatComposerNotice } from './use-native-chat-composer-notice'
 import { useNativeChatMobileHoldNotice } from './use-native-chat-mobile-hold-notice'
 import type { NativeChatComposerInput } from './native-chat-composer-input'
@@ -63,6 +64,8 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
       structuredTransport,
       steerQueued,
       recallSource,
+      composerAccessory,
+      hideNativeModelPicker,
       inputOwnedByCard = false,
       notices: chatNotices
     },
@@ -239,8 +242,12 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
         paneKey
       })
     const sessionOptionsSurface = structuredTransport?.optionsSurface ?? ptySessionOptionsSurface
-    const contextUsageSummary = useNativeChatContextUsageSummary(structuredTransport)
     const sessionOptionsSnapshot = structuredTransport?.optionSnapshot ?? ptySessionOptionsSnapshot
+    const contextUsageSummary = useNativeChatContextUsageSummary(structuredTransport)
+    const renderedComposerAccessory =
+      typeof composerAccessory === 'function'
+        ? composerAccessory({ sessionOptionsSurface, sessionOptionsSnapshot, isWorking })
+        : composerAccessory
 
     const sendStructured = useNativeChatStructuredComposerSend({
       agent,
@@ -409,6 +416,8 @@ const NativeChatComposerPane = forwardRef<NativeChatComposerHandle, NativeChatCo
         sessionOptionsSnapshot={sessionOptionsSnapshot}
         contextUsage={contextUsageSummary}
         sessionOptionsPickerRequest={structuredTransport?.optionPickerRequest ?? null}
+        composerAccessory={renderedComposerAccessory}
+        hideNativeModelPicker={hideNativeModelPicker}
         agent={agent}
       />
     )

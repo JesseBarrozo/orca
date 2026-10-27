@@ -6,7 +6,6 @@ import type {
 } from '../../shared/runtime-types'
 import type { Tab } from '../../shared/tab-types'
 import { ORCA_LAYOUT_OWNER_IS_MAIN } from '../../shared/layout-owner-switch'
-import { editorRowHost } from '../../shared/session-tab-file-host'
 import {
   editorTabNamesFile,
   sameEditorFile
@@ -59,8 +58,7 @@ function editorTab(
       !!activeFileId &&
       editorTabNamesFile(editorWorkspace(session, worktreeId), activeFileId, file),
     color: unifiedTab?.color ?? null,
-    isPinned: unifiedTab?.isPinned === true,
-    ...editorRowHost(file)
+    isPinned: unifiedTab?.isPinned === true
   }
   if (file.language === 'markdown') {
     return {

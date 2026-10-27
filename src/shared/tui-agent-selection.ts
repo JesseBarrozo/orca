@@ -54,6 +54,20 @@ export const TUI_AGENT_AUTO_PICK_ORDER = [
 // Fresh installs show Agent Teams; the migration separately preserves legacy hidden defaults.
 export const DEFAULT_DISABLED_TUI_AGENTS = [] as const satisfies readonly TuiAgent[]
 
+/**
+ * OpenCode 2 is the current Orca integration for the shared OpenCode install.
+ * Keep the legacy id available for old sessions and terminal settings, but do
+ * not expose both ids in installed/provider/model lists when the v2 alias is
+ * present.
+ */
+export function collapsePreferredAgentAliases<T extends string>(agents: Iterable<T>): T[] {
+  const values = [...new Set(agents)]
+  if (!values.includes('opencode2' as T)) {
+    return values
+  }
+  return values.filter((agent) => agent !== ('opencode' as T))
+}
+
 export function pickTuiAgent(
   preferred: TuiAgent | 'blank' | null | undefined,
   detected: Iterable<TuiAgent>,

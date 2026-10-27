@@ -14,6 +14,7 @@ import { normalizeSourceControlAiSettings } from '../../shared/source-control-ai
 import { SOURCE_CONTROL_LAUNCH_ACTION_IDS } from '../../shared/source-control-ai-actions'
 import type { GlobalSettings } from '../../shared/global-settings-types'
 import { applyNativeChatSessionOptionSettingsMutation } from '../../shared/native-chat-session-option-defaults'
+import { normalizeDisabledNativeChatProviders } from '../../shared/native-chat-model-availability'
 import type { NativeChatSessionOptionSettingsMutation } from '../../shared/native-chat-session-options'
 import { getHostDisplayLabelOverrides } from '../../shared/host-setting-overrides'
 import type { TerminalQuickCommand } from '../../shared/terminal-quick-command-types'
@@ -37,12 +38,6 @@ import type {
   RuntimeHostDisplayLabelOverrides
 } from './runtime-client-settings-shape'
 
-/** Which Orca cloud services this host registered; headless hosts register none. */
-export type RuntimeSharingServicePresence = {
-  artifacts(): boolean
-  skills(): boolean
-}
-
 export class RuntimeClientSettingsController {
   private reconciliationGeneration = 0
   private reconciliationTail: Promise<void> = Promise.resolve()
@@ -52,8 +47,7 @@ export class RuntimeClientSettingsController {
       RuntimeStore,
       'getSettings' | 'updateSettings' | 'runDurableMutation'
     > | null,
-    private readonly notifyReposChanged: (() => void) | undefined = undefined,
-    private readonly sharingServices: RuntimeSharingServicePresence | undefined = undefined
+    private readonly notifyReposChanged: (() => void) | undefined = undefined
   ) {}
 
   get(): RuntimeClientSettings {
@@ -65,6 +59,8 @@ export class RuntimeClientSettingsController {
     const launchProfile = composeAgentLaunchProfile(settings, process.platform)
     return {
       defaultTuiAgent: settings.defaultTuiAgent ?? null,
+      universalChatDefault: settings.universalChatDefault === true,
+      universalChatDefaultHarness: settings.universalChatDefaultHarness ?? 'auto',
       newWorkspaceSetupOnly: false,
       disabledTuiAgents: settings.disabledTuiAgents ?? [],
       agentCmdOverrides: settings.agentCmdOverrides ?? {},
@@ -94,16 +90,15 @@ export class RuntimeClientSettingsController {
       minimaxEndpoint: settings.minimaxEndpoint ?? 'overseas',
       zcodePlanSite: settings.zcodePlanSite ?? 'zai',
       prBotAuthorOverrides: settings.prBotAuthorOverrides ?? [],
-      // Omitted without a service: clients treat absence as "ask the host", which names the real cause.
-      ...(this.sharingServices?.artifacts() === false
-        ? {}
-        : { artifactSharingEnabled: isArtifactSharingEnabled(settings) }),
+      artifactSharingEnabled: isArtifactSharingEnabled(settings),
       worktreeVisibilityDefaults: settings.worktreeVisibilityDefaults ?? { external: 'hide' },
-      ...(this.sharingServices?.skills() === false
-        ? {}
-        : { agentSkillSharingEnabled: isAgentSkillSharingEnabled(settings) }),
+      agentSkillSharingEnabled: isAgentSkillSharingEnabled(settings),
       machineName: settings.machineName ?? '',
       nativeChatPermissionMode: publishedLegacyChatPermissionMode(settings),
+      disabledNativeChatModelKeys: settings.disabledNativeChatModelKeys ?? [],
+      disabledNativeChatProviders: normalizeDisabledNativeChatProviders(
+        settings.disabledNativeChatProviders
+      ),
       // Why projected: a paired client's AI buttons start these actions' agents, and must honour
       // the agent saved for each one as the desktop does. Absent on older hosts.
       sourceControlAi: projectSourceControlLaunchRecipes(settings),
@@ -122,21 +117,30 @@ export class RuntimeClientSettingsController {
     const beforeSettings = this.store.getSettings()
     const before = beforeSettings.agentStatusHooksEnabled !== false
     // Legacy clients can select an agent or a shell, but cannot select None.
+    const { defaultTuiAgent, ...otherUpdates } = updates
+    const persistedUpdates = {
+      ...otherUpdates,
+      ...(defaultTuiAgent === 'universal'
+        ? { defaultTuiAgent: null, universalChatDefault: true }
+        : defaultTuiAgent !== undefined
+          ? { defaultTuiAgent, universalChatDefault: false }
+          : {})
+    }
     this.store.updateSettings(
       {
-        ...updates,
+        ...persistedUpdates,
         // An older client writes Arguments as it reads them, flag included.
         ...(updates.agentDefaultArgs !== undefined || updates.agentDefaultEnv !== undefined
           ? legacyLaunchTextUpdates(
               beforeSettings,
               {
-                agentDefaultArgs: updates.agentDefaultArgs,
-                agentDefaultEnv: updates.agentDefaultEnv
+                agentDefaultArgs: persistedUpdates.agentDefaultArgs,
+                agentDefaultEnv: persistedUpdates.agentDefaultEnv
               },
               process.platform
             )
           : {}),
-        ...(updates.defaultTuiAgent !== undefined ? { newWorkspaceSetupOnly: false } : {})
+        ...(persistedUpdates.defaultTuiAgent !== undefined ? { newWorkspaceSetupOnly: false } : {})
       },
       { notifyListeners: true }
     )

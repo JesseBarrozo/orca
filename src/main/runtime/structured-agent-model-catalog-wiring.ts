@@ -11,6 +11,7 @@ import {
   workspaceMayOverrideDefaultModel
 } from '../native-chat/agent-model-catalog/agent-project-model-override'
 import type { AgentModelCatalogProbe } from '../native-chat/agent-model-catalog/agent-model-catalog-store'
+import { createAutoModelPoolService } from '../native-chat/universal-terminal/auto-model-pool-service'
 import type { AgentSessionRecordStore } from './agent-session-record-store'
 import type {
   StructuredAgentModelCatalogContext,
@@ -19,6 +20,7 @@ import type {
 import type { StructuredAgentRegistry } from '../native-chat/agent-session-wire/structured-agent-registry'
 import { agentDrivesSession } from '../native-chat/agent-session-wire/structured-agent-session-provider-support'
 import { getStructuredAgentSessionHost } from '../native-chat/agent-session-wire/structured-agent-session-registry'
+import { createTypeSafeOrchestrationRouter } from '../typesafe/typesafe-orchestration-router'
 
 // The store is process-global; hydrate it from disk at most once per process.
 let persistenceAttached: Promise<void> | null = null
@@ -69,7 +71,12 @@ export async function modelCatalogHostDeps(input: {
   registrations: readonly CatalogRegistration[]
   deps: StructuredAgentModelCatalogContext['deps']
   environment: StructuredAgentModelCatalogContext['environment']
-}): Promise<{ modelCatalog?: AgentModelCatalogService }> {
+  getDisabledNativeChatModelKeys?: () => readonly string[] | undefined
+  getDisabledNativeChatProviders?: () => readonly string[] | undefined
+}): Promise<{
+  modelCatalog?: AgentModelCatalogService
+  autoModelPool?: ReturnType<typeof createAutoModelPoolService>
+}> {
   await attachAgentModelCatalogPersistenceOnce(input.deps.stateDirectory)
   const { deps } = input
   if (!deps.resolveAgentAccountHome) {
@@ -92,7 +99,18 @@ export async function modelCatalogHostDeps(input: {
       environment: input.environment
     })
   })
-  return { modelCatalog }
+  return {
+    modelCatalog,
+    autoModelPool: createAutoModelPoolService({
+      modelCatalog,
+      agents: input.registrations.map((registration) => registration.definition.agent),
+      getDisabledModelKeys: input.getDisabledNativeChatModelKeys,
+      getDisabledAgents: input.getDisabledNativeChatProviders,
+      orchestrationRouter: createTypeSafeOrchestrationRouter({
+        resolveEnvironment: input.environment.resolveBaseEnvironment
+      })
+    })
+  }
 }
 
 /** The installed host lists what a changed account or agent setting made cold; with no host yet,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { parseOpenCodeModelListing } from './opencode-model-catalog-listing'
 
-// Match opencode models --verbose: ID followed by pretty-printed model JSON.
+// Match OpenCode models: IDs may be followed by pretty-printed model JSON.
 function listing(models: Record<string, unknown>): string {
   return Object.entries(models)
     .map(([id, model]) => `${id}\n${JSON.stringify(model, null, 2)}\n`)

@@ -32,6 +32,8 @@ import {
   type AgentPermissionsSettingProps
 } from './AgentPermissionsSetting'
 import type { SettingsHostScope } from './settings-host-scope'
+import { NativeChatModelSettings } from './NativeChatModelSettings'
+import { UniversalChatHarnessSetting } from './UniversalChatHarnessSetting'
 
 export {
   buildAgentAvailabilitySettingsUpdate,
@@ -75,6 +77,16 @@ export function AgentsPane({
       />
       <section className="space-y-8">
         <SettingsSubsectionHeader title={getLocalExecutionHostLabel()} />
+        <NativeChatModelSettings
+          settings={settings}
+          updateSettings={updateSettings}
+          hostScope={hostScope}
+        />
+        <UniversalChatHarnessSetting
+          settings={settings}
+          updateSettings={updateSettings}
+          hostScope={hostScope}
+        />
         <AgentRuntimeSetting
           settings={settings}
           updateSettings={updateSettings}

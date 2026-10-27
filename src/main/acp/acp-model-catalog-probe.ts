@@ -101,9 +101,10 @@ export function createAcpModelCatalogProbe(
       )
       models = listing.parse(stdout)
     } else if (listing.kind === 'session') {
-      if (!workspace) {
+      if (!workspace && !listing.allowUndeletedSession) {
         throw folderlessListing(spec)
       }
+      const sessionWorkspace = workspace ?? cwd
       // Remove disposable session storage after the process closes.
       const folderArgs = listing.sessionFolderArgs
       const folder = folderArgs
@@ -114,7 +115,7 @@ export function createAcpModelCatalogProbe(
           folderArgs && folder ? [...launch.args, ...folderArgs(folder.path)] : launch.args
         models = await runAgentModelCatalogSession(
           () => (deps.connectSession ?? createAcpAgentConnection)({ ...launch, args }),
-          (connection) => readSessionModels(spec, listing, connection, workspace),
+          (connection) => readSessionModels(spec, listing, connection, sessionWorkspace, env),
           run
         )
       } finally {
@@ -155,14 +156,23 @@ async function readSessionModels(
   spec: AcpLaunchSpec,
   listing: AcpSessionModelDiscovery,
   connection: AcpModelCatalogSessionConnection,
-  workspace: string
+  workspace: string,
+  env: Readonly<Record<string, string>>
 ): Promise<AgentSessionModelOption[]> {
   const initialized = await connection.initialize()
   const deletes = Boolean(initialized.agentCapabilities?.sessionCapabilities?.delete)
-  if (!deletes && !listing.sessionFolderArgs) {
+  if (!deletes && !listing.sessionFolderArgs && !listing.allowUndeletedSession) {
     throw new Error(`${spec.agent} cannot delete a session, so it lists its models only in chats`)
   }
-  const started = await connection.start({ cwd: workspace, mcpServers: [] })
+  const authMethodId = spec.authMethod?.({
+    advertised: (initialized.authMethods ?? []).map((method) => method.id),
+    env
+  })
+  const started = await connection.start({
+    cwd: workspace,
+    mcpServers: [],
+    ...(authMethodId ? { authMethodId } : {})
+  })
   // A failed delete or interrupted create may leave an empty conversation.
   if (deletes) {
     await connection.deleteSession(started.sessionId).catch((error: unknown) => {

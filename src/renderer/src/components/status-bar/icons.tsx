@@ -1,5 +1,20 @@
 import React from 'react'
 import minimaxIconUrl from '../../../../../resources/minimax-icon.svg?url'
+import omniIconUrl from '../../../../../resources/omni.svg?url'
+
+export function OmniIcon({ size = 14 }: { size?: number }): React.JSX.Element {
+  return (
+    <img
+      src={omniIconUrl}
+      alt=""
+      aria-hidden="true"
+      width={size}
+      height={size}
+      className="block shrink-0"
+      style={{ width: size, height: size }}
+    />
+  )
+}
 
 export function OpenAIIcon({ size = 14 }: { size?: number }): React.JSX.Element {
   return (

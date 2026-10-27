@@ -6,6 +6,7 @@ export type SessionOptionSelectChoice = {
   value: string
   label: string
   description?: string
+  badge?: string
 }
 
 /** default describes catalog display, never running-agent evidence. dispatched is sent but unread and may be corrected by reports.

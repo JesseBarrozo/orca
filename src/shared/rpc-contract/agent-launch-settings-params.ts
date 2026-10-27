@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { isTuiAgent } from '../tui-agent-config'
 import { AGENT_PERMISSION_CHOICES } from '../tui-agent-permission-choice'
 import type { TuiAgent } from '../tui-agent'
+import { UNIVERSAL_CHAT_AGENT } from '../default-agent'
 
 const Agent = z.custom<TuiAgent>((value) => typeof value === 'string' && isTuiAgent(value))
 const Value = z
@@ -18,7 +19,7 @@ export const AgentLaunchSettingsMutation = z.discriminatedUnion('type', [
   z
     .object({
       type: z.literal('default'),
-      agent: z.union([Agent, z.literal('blank'), z.null()]),
+      agent: z.union([Agent, z.literal(UNIVERSAL_CHAT_AGENT), z.literal('blank'), z.null()]),
       setupOnly: z.boolean().optional()
     })
     .strict(),

@@ -32,6 +32,7 @@ export {
   ThreadGoalParams,
   UnsubscribeParams
 } from '../../../../shared/rpc-contract/structured-agent-session-params'
+export { UniversalAutoModelPoolParams } from '../../../../shared/rpc-contract/universal-terminal-params'
 export { ContinueInterruptedParams } from '../../../../shared/rpc-contract/structured-agent-session-continue-params'
 export { RenameParams } from '../../../../shared/rpc-contract/structured-agent-session-rename-params'
 export {

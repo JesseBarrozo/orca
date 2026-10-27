@@ -107,7 +107,7 @@ export function useNativeChatSessionOptions(args: {
       scopeKey,
       ...(targetPtyId ? { fallbackScopeKey: terminalTabId } : {}),
       // Version-neutral family seeds keep the picker available while host discovery runs or fails.
-      ...(discoveryContext ? { initialModels: discoveredModels ?? undefined } : {}),
+      initialModels: discoveredModels ?? getAgentSessionOptionCatalog(agent)?.models ?? [],
       mode: targetPtyId ? 'live' : 'draft',
       reportedValues,
       dispatchCommand,

@@ -1,5 +1,6 @@
 import { Check } from 'lucide-react'
-import type { TuiAgent } from '../../../../shared/tui-agent'
+import { OmniIcon } from '@/components/status-bar/icons'
+import type { DefaultAgent } from '../../../../shared/default-agent'
 import type { AgentCatalogEntry } from '@/lib/agent-catalog'
 import { AgentIcon } from '@/lib/agent-catalog'
 import { cn } from '@/lib/utils'
@@ -51,7 +52,7 @@ export function AgentDefaultSetting({
   onSetDefault,
   defaultOpensAsChat = false
 }: {
-  defaultAgent: TuiAgent | 'blank' | null
+  defaultAgent: DefaultAgent
   detectedIds: Set<string> | null
   /** The saved default opens as a chat on this host without its CLI. */
   defaultOpensAsChat?: boolean
@@ -60,7 +61,7 @@ export function AgentDefaultSetting({
   description: string
   /** Present only when the default agent can open as a chat on this computer. */
   opensAs?: DefaultAgentOpensAs
-  onSetDefault: (agent: TuiAgent | 'blank' | null) => void
+  onSetDefault: (agent: DefaultAgent) => void
 }): React.JSX.Element {
   const storedDefaultAgent =
     defaultAgent !== null && defaultAgent !== 'blank'
@@ -109,6 +110,18 @@ export function AgentDefaultSetting({
             </DefaultAgentPill>
           )
         })}
+        <DefaultAgentPill
+          active={defaultAgent === 'universal'}
+          onClick={() => onSetDefault(defaultAgent === 'universal' ? 'blank' : 'universal')}
+          title={translate(
+            'settings.agents.universalDefaultTitle',
+            'Open the provider-neutral Omni chat for new agent sessions'
+          )}
+        >
+          {defaultAgent === 'universal' && <Check className="size-3.5" />}
+          <OmniIcon size={14} />
+          {translate('settings.agents.universalChat', 'Omni')}
+        </DefaultAgentPill>
       </div>
       {opensAs ? (
         <div className="flex flex-wrap items-center gap-3">

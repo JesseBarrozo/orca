@@ -123,6 +123,8 @@ export type RuntimeStore = {
     branchPrefix: string
     branchPrefixCustom: string
     defaultTuiAgent?: GlobalSettings['defaultTuiAgent']
+    universalChatDefault?: GlobalSettings['universalChatDefault']
+    universalChatDefaultHarness?: GlobalSettings['universalChatDefaultHarness']
     newWorkspaceSetupOnly?: GlobalSettings['newWorkspaceSetupOnly']
     disabledTuiAgents?: GlobalSettings['disabledTuiAgents']
     agentCmdOverrides?: GlobalSettings['agentCmdOverrides']
@@ -175,6 +177,8 @@ export type RuntimeStore = {
     showPinnedWorktreesInGroups?: GlobalSettings['showPinnedWorktreesInGroups']
     agentSkillSharingEnabled?: GlobalSettings['agentSkillSharingEnabled']
     nativeChatSessionOptions?: GlobalSettings['nativeChatSessionOptions']
+    disabledNativeChatModelKeys?: GlobalSettings['disabledNativeChatModelKeys']
+    disabledNativeChatProviders?: GlobalSettings['disabledNativeChatProviders']
     nativeChatPermissionMode?: GlobalSettings['nativeChatPermissionMode']
     nativeChatInlineVisuals?: GlobalSettings['nativeChatInlineVisuals']
     nativeChatInheritShellEnvironment?: GlobalSettings['nativeChatInheritShellEnvironment']

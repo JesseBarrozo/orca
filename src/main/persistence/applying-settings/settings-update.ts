@@ -3,6 +3,7 @@ import { normalizeNativeChatAppearanceSettings } from '../../../shared/native-ch
 import type { GlobalSettings } from '../../../shared/global-settings-types'
 import { retireAtRestCommandSettings } from '../../native-chat/agent-session-wire/at-rest-command-context'
 import { normalizeDisabledTuiAgents } from '../../../shared/tui-agent-selection'
+import { normalizeDisabledNativeChatProviders } from '../../../shared/native-chat-model-availability'
 import { normalizeNativeChatProviderChoices } from '../../../shared/native-chat/native-chat-providers'
 import { resolveNestedWorkerMaxDepth } from '../../../shared/nested-worker-depth'
 import { sanitizeAgentLaunchProfileUpdates } from '../../../shared/tui-agent-launch-defaults'
@@ -88,6 +89,11 @@ export function updateSettings(
   }
   if ('disabledTuiAgents' in updates) {
     sanitizedUpdates.disabledTuiAgents = normalizeDisabledTuiAgents(updates.disabledTuiAgents)
+  }
+  if ('disabledNativeChatProviders' in updates) {
+    sanitizedUpdates.disabledNativeChatProviders = normalizeDisabledNativeChatProviders(
+      updates.disabledNativeChatProviders
+    )
   }
   if ('nativeChatProviders' in updates) {
     sanitizedUpdates.nativeChatProviders = normalizeNativeChatProviderChoices(

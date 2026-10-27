@@ -3,6 +3,7 @@ import type { AgentType } from '../../../shared/agent-status-types'
 import { AgentIcon } from './agent-catalog'
 import { AgentLetterIcon } from './agent-icon-glyphs'
 import { agentTypeToIconAgent } from './agent-status'
+import { OmniIcon } from '../components/status-bar/icons'
 
 /** Status-row icon: known agents get their brand icon, any other OSC 7501 program its first letter. */
 export function AgentTypeIcon({
@@ -12,6 +13,9 @@ export function AgentTypeIcon({
   agentType: AgentType | null | undefined
   size?: number
 }): React.JSX.Element {
+  if (agentType === 'universal') {
+    return <OmniIcon size={size} />
+  }
   const iconAgent = agentTypeToIconAgent(agentType)
   if (iconAgent) {
     return <AgentIcon agent={iconAgent} size={size} />

@@ -169,6 +169,7 @@ export default function TabGroupPanel({
       }}
       onNewTerminalTab={commands.newTerminalTab}
       onNewTerminalWithShell={commands.newTerminalWithShell}
+      onUniversalChat={commands.newUniversalChat}
       onNewBrowserTab={commands.newBrowserTab}
       onNewSimulatorTab={commands.newSimulatorTab}
       onOpenEntry={commands.openEntry}

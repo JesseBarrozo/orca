@@ -35,6 +35,8 @@ export type NativeChatComposerActionsProps = {
   sessionOptionsSurface: SessionOptionsSurface | null
   sessionOptionsSnapshot: SessionOptionDescriptor[]
   sessionOptionsPickerRequest?: NativeChatOptionPickerRequest | null
+  composerAccessory?: React.ReactNode
+  hideNativeModelPicker?: boolean
   focusComposer?: () => void
   /** Present while the composer is in goal mode; the chip calls it to leave. */
   onExitGoalMode?: () => void
@@ -63,6 +65,8 @@ export function NativeChatComposerActions({
   sessionOptionsSurface,
   sessionOptionsSnapshot,
   sessionOptionsPickerRequest,
+  composerAccessory,
+  hideNativeModelPicker = false,
   onExitGoalMode,
   contextUsage,
   focusComposer,
@@ -137,13 +141,16 @@ export function NativeChatComposerActions({
       </div>
       <div className="ml-auto flex items-center gap-1.5">
         {/* Keep option pickers beside the session actions they affect. */}
-        <NativeChatSessionOptionPickers
-          surface={sessionOptionsSurface}
-          snapshot={sessionOptionsSnapshot}
-          isWorking={isWorking}
-          pickerRequest={sessionOptionsPickerRequest}
-          focusComposer={focusComposer}
-        />
+        {hideNativeModelPicker ? null : (
+          <NativeChatSessionOptionPickers
+            surface={sessionOptionsSurface}
+            snapshot={sessionOptionsSnapshot}
+            isWorking={isWorking}
+            pickerRequest={sessionOptionsPickerRequest}
+            focusComposer={focusComposer}
+          />
+        )}
+        {composerAccessory}
         {contextUsage ? <NativeChatContextUsageRing usage={contextUsage} /> : null}
         <Tooltip>
           <TooltipTrigger asChild>

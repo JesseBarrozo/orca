@@ -5,6 +5,7 @@ import { GROK_ACP_DIALECT } from './acp-dialects/grok-dialect'
 import { OMP_ACP_DIALECT } from './acp-dialects/omp-dialect'
 import { OPENCODE_ACP_DIALECT } from './acp-dialects/opencode-dialect'
 import { ANTIGRAVITY_ACP_DIALECT } from './acp-dialects/antigravity-dialect'
+import { GENERIC_ACP_DIALECT } from './acp-dialects/acp-dialect'
 import { directoryAccountBinding, type AcpAccountBinding } from './acp-account-binding'
 import { openCodeAcpAccountBinding } from '../opencode/opencode-structured-account-home'
 import { scrubOpenCodeAcpEnvironment } from '../opencode/opencode-acp-environment'
@@ -83,11 +84,13 @@ export type AcpSessionModelDiscovery = {
   kind: 'session'
   listingNamesConfiguredModel: boolean
   sessionFolderArgs?(folder: string): string[]
+  /** Some ACP servers expose models only from session/new and do not implement session/delete. */
+  allowUndeletedSession?: true
 }
 
 export function acpListingNeedsChatFolder(discovery: AcpModelDiscovery): boolean {
   return (
-    discovery.kind === 'session' ||
+    (discovery.kind === 'session' && discovery.allowUndeletedSession !== true) ||
     (discovery.kind === 'command' && discovery.otherReleasesListInSession === true)
   )
 }
@@ -251,6 +254,42 @@ const OMP_LAUNCH_SPEC: AcpLaunchSpec = {
   sessionHistory: OMP_SESSION_HISTORY
 }
 
+const GEMINI_SESSION_HISTORY: StructuredAgentSessionHistory = {
+  rowAgents: ['gemini'],
+  rowSessionId: (link) => link.handle.nativeId,
+  parseResumeArgs: () => null
+}
+
+// Gemini CLI keeps its account state below GEMINI_CLI_HOME/.gemini. The variable is deliberately
+// different from Antigravity's GEMINI_HOME so the two Google-backed providers never share state.
+const GEMINI_LAUNCH_SPEC: AcpLaunchSpec = {
+  agent: 'gemini',
+  command: 'gemini',
+  args: () => ['--acp'],
+  env: {},
+  dialect: GENERIC_ACP_DIALECT,
+  loginCommand: [],
+  authMethod: ({ advertised, env }) => {
+    if (env.GEMINI_API_KEY?.trim() && advertised.includes('gemini-api-key')) {
+      return 'gemini-api-key'
+    }
+    if (advertised.includes('oauth-personal')) {
+      return 'oauth-personal'
+    }
+    return undefined
+  },
+  account: directoryAccountBinding('GEMINI_CLI_HOME', (homePath) => homePath),
+  installDirectories: ({ homePath }) => [join(homePath, '.local', 'bin')],
+  modelDiscovery: {
+    kind: 'session',
+    listingNamesConfiguredModel: false,
+    allowUndeletedSession: true
+  },
+  transcriptImport: null,
+  sessionHistory: GEMINI_SESSION_HISTORY,
+  privateTempDirectory: true
+}
+
 // agy conversations are separate from the ACP server's and cannot resume these sessions.
 const ANTIGRAVITY_SESSION_HISTORY: StructuredAgentSessionHistory = {
   rowAgents: ['antigravity'],
@@ -283,8 +322,11 @@ export const ANTIGRAVITY_LAUNCH_SPEC = {
     values: { ask: 'default', 'accept-edits': 'auto_edit', 'full-access': 'yolo' }
   },
   modelDiscovery: {
-    kind: 'unavailable',
-    reason: 'the Antigravity server lists its models only in a signed-in session'
+    kind: 'session',
+    listingNamesConfiguredModel: false,
+    // The Antigravity ACP server advertises list/resume but not delete. Its managed private
+    // account folder is still isolated from the user's normal Gemini CLI account.
+    allowUndeletedSession: true
   },
   transcriptImport: null,
   sessionHistory: ANTIGRAVITY_SESSION_HISTORY,
@@ -296,6 +338,7 @@ export const ANTIGRAVITY_LAUNCH_SPEC = {
 
 export const ACP_LAUNCH_SPECS: readonly AcpLaunchSpec[] = [
   GROK_LAUNCH_SPEC,
+  GEMINI_LAUNCH_SPEC,
   OPENCODE_LAUNCH_SPEC,
   OPENCODE2_LAUNCH_SPEC,
   OMP_LAUNCH_SPEC,

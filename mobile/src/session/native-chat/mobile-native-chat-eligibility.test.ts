@@ -193,6 +193,11 @@ describe('resolveMobileNativeChat', () => {
       })
     ).toBeNull()
   })
+
+  it('canShowMobileNativeChat mirrors resolution', () => {
+    expect(canShowMobileNativeChat({ type: 'terminal', launchAgent: 'claude' })).toBe(true)
+    expect(canShowMobileNativeChat(null)).toBe(false)
+  })
 })
 
 it('resolves folder readability from the serving host catalog and rejects Model-A SSH', () => {

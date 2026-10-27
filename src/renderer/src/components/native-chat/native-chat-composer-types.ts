@@ -33,6 +33,16 @@ export type NativeChatOptionPickerRequest = {
   consume: () => void
 }
 
+export type NativeChatComposerAccessoryContext = {
+  sessionOptionsSurface: SessionOptionsSurface | null
+  sessionOptionsSnapshot: SessionOptionDescriptor[]
+  isWorking: boolean
+}
+
+export type NativeChatComposerAccessory =
+  | React.ReactNode
+  | ((context: NativeChatComposerAccessoryContext) => React.ReactNode)
+
 export type NativeChatStructuredComposerTransport = {
   capturePresentation: CaptureStructuredAgentSessionPresentation
   conversationCommands?: readonly AgentSessionConversationCommand[]
@@ -130,6 +140,10 @@ export type NativeChatComposerProps = {
   notices?: readonly NativeChatComposerNotice[]
   /** The conversation Up/Down recalls prompts from. */
   recallSource?: NativeChatRecallSource
+  /** Optional provider-neutral controls that share the native composer action row. */
+  composerAccessory?: NativeChatComposerAccessory
+  /** Hide the provider-specific model/options picker when a universal picker replaces it. */
+  hideNativeModelPicker?: boolean
 }
 
 /** The unsent TUI launch prefill and this pane’s adoption/cleanup authority. */

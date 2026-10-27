@@ -2,7 +2,10 @@ import { z } from 'zod'
 import { isTaskProvider } from '../task-providers'
 import type { TaskProvider } from '../task-providers'
 import { isTuiAgent } from '../tui-agent-config'
+import { isUniversalChatHarness } from '../universal-chat-harness'
+import { UNIVERSAL_CHAT_AGENT } from '../default-agent'
 import { normalizeDisabledTuiAgents } from '../tui-agent-selection'
+import { normalizeDisabledNativeChatProviders } from '../native-chat-model-availability'
 import {
   normalizeTuiAgentArgsRecord,
   normalizeTuiAgentEnvRecord
@@ -91,8 +94,15 @@ export const SettingsUpdate = z
     defaultTuiAgent: z
       .unknown()
       .transform((value) =>
-        value === null || value === 'blank' || isTuiAgent(value) ? value : undefined
+        value === null || value === 'blank' || value === UNIVERSAL_CHAT_AGENT || isTuiAgent(value)
+          ? value
+          : undefined
       )
+      .optional(),
+    universalChatDefault: z.boolean().optional(),
+    universalChatDefaultHarness: z
+      .unknown()
+      .transform((value) => (isUniversalChatHarness(value) ? value : undefined))
       .optional(),
     disabledTuiAgents: z
       .unknown()
@@ -128,7 +138,12 @@ export const SettingsUpdate = z
       .unknown()
       .transform((value) => normalizePRBotAuthorOverrides(value))
       .optional(),
-    nativeChatPermissionMode: z.enum(AGENT_CHAT_PERMISSION_MODES).optional()
+    nativeChatPermissionMode: z.enum(AGENT_CHAT_PERMISSION_MODES).optional(),
+    disabledNativeChatModelKeys: z.array(z.string().trim().min(1).max(768)).max(2048).optional(),
+    disabledNativeChatProviders: z
+      .unknown()
+      .transform((value) => normalizeDisabledNativeChatProviders(value))
+      .optional()
   })
   .strict()
   .default({})

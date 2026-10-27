@@ -11,6 +11,7 @@ import {
   NATIVE_CHAT_SCRATCH_DIR_ENV,
   withNativeChatVisualsEnv
 } from '../native-chat/native-chat-visuals-delivery'
+import { applyCodexUniversalChatGateway } from '../runtime/universal-chat-gateway-session'
 
 export type CodexStructuredLaunchPartDeps = {
   resolveLaunchArgs: () => Promise<string[]> | string[]
@@ -62,7 +63,7 @@ async function readCodexStructuredInvocation(
 export function codexStructuredLaunchPart(
   deps: CodexStructuredLaunchPartDeps
 ): StructuredAgentLaunchPartResolver<CodexStructuredLaunch> {
-  return async (basis) => {
+  return async (basis, identity) => {
     const { record } = basis
     const accountHome = requireLegacyAgentSessionAccountHome(record.accountHome)
     const { command } = await resolveCodexStructuredInvocation({
@@ -73,6 +74,11 @@ export function codexStructuredLaunchPart(
     })
     const environment = await basis.environment()
     const args = codexStructuredLaunchArgs(await deps.resolveLaunchArgs())
+    const gateway = applyCodexUniversalChatGateway({
+      sessionId: identity.sessionId,
+      environment,
+      args
+    })
     const head = agentSessionProviderHandleChainHead(record.providerHandleChain)
     const resumeThreadId = head?.handle.nativeId ?? null
     // Match the first turn's model to avoid duplicate prompt injection on a model switch.
@@ -82,7 +88,7 @@ export function codexStructuredLaunchPart(
     return {
       launch: {
         command,
-        args: [...args, 'app-server'],
+        args: [...gateway.args, 'app-server'],
         codexHome: accountHome.path,
         resumeThreadId,
         // Only created threads may be unsaved; resumed, forked and adopted threads were persisted.
@@ -95,7 +101,10 @@ export function codexStructuredLaunchPart(
         ...(visuals ? { visuals } : {})
       },
       env: withNativeChatVisualsEnv(
-        { ...environment, ...(accountHome.path ? { CODEX_HOME: accountHome.path } : {}) },
+        {
+          ...gateway.environment,
+          ...(accountHome.path ? { CODEX_HOME: accountHome.path } : {})
+        },
         visuals
       ),
       // Clear inherited scratch paths that may belong to another chat.

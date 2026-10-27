@@ -181,13 +181,8 @@ export abstract class OrcaRuntimeWithStateFields extends OrcaRuntimeWithLinearCo
     })
     installRuntimeSkillCommandSurface(this, this.skillCommands)
     Object.assign(this, this.edgeCommands.surface)
-    this.clientSettings = new RuntimeClientSettingsController(
-      store,
-      () => this.notifyReposChanged(),
-      {
-        artifacts: () => this.artifacts.hasService(),
-        skills: () => this.skillCommands.hasSkillCloudService()
-      }
+    this.clientSettings = new RuntimeClientSettingsController(store, () =>
+      this.notifyReposChanged()
     )
     this.automation = new RuntimeAutomationController(store, {
       showRepo: (selector) => this.showRepo(selector),

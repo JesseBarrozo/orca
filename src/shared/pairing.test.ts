@@ -100,6 +100,12 @@ describe('pairing offer', () => {
     expect(decodePairingOffer(encodePairingOffer(proxiedOffer))).toEqual(proxiedOffer)
   })
 
+  it('encoded URL uses base64url (no +, /, or = characters)', () => {
+    const url = encodePairingOffer(offer)
+    const code = new URLSearchParams(url.slice(url.indexOf('?') + 1)).get('code')!
+    expect(code).not.toMatch(/[+/=]/)
+  })
+
   it('rejects URLs with wrong scheme', () => {
     expect(() => decodePairingOffer('https://example.com#abc')).toThrow('Invalid pairing URL')
   })
@@ -158,6 +164,11 @@ describe('parsePairingCode', () => {
     deviceToken: 'token-abc',
     publicKeyB64: 'pubkey-xyz'
   }
+
+  it('parses a full orca://pair# URL', () => {
+    const url = encodePairingOffer(offer)
+    expect(parsePairingCode(url)).toEqual(offer)
+  })
 
   it('parses a bare base64url payload (without scheme prefix)', () => {
     const url = encodePairingOffer(offer)

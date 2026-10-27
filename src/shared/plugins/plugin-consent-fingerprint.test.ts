@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
-import type { PluginCapability } from './plugin-capabilities'
+import { canonicalizeCapabilitySet, type PluginCapability } from './plugin-capabilities'
 import { fingerprintPluginConsent } from './plugin-consent-fingerprint'
 import {
   getPluginActivationState,
@@ -52,6 +53,15 @@ describe('fingerprintPluginConsent', () => {
     }
     expect(getPluginActivationState('orca-samples.demo', withWorker, lists)).toBe('pending')
     expect(needsReconsent('orca-samples.demo', withWorker, lists)).toBe(true)
+  })
+
+  it('preserves capability-only fingerprints for existing panel plugins', () => {
+    const capabilities = [workspaceRead, storage]
+    const legacy = `sha256-${createHash('sha256')
+      .update(canonicalizeCapabilitySet(capabilities))
+      .digest('base64')}`
+
+    expect(fingerprintPluginConsent({ main: undefined, capabilities })).toBe(legacy)
   })
 
   it('requires re-consent when instructional content bytes change', () => {

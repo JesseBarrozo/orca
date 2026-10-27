@@ -624,6 +624,13 @@ import {
   TerminalUnsubscribe,
   TerminalUpdateViewport
 } from './terminal-viewport-schemas-params'
+import {
+  UniversalChatCreateParams,
+  UniversalChatSelectParams,
+  UniversalChatSendParams,
+  UniversalChatSessionParams
+} from './universal-chat-params'
+import { UniversalAutoModelPoolParams } from './universal-terminal-params'
 import { UpdaterCheckParams } from './updater-params'
 import {
   UsageCredentialApiKeyParams,
@@ -724,6 +731,7 @@ export const RPC_PARAMS_BY_METHOD = {
   'agentHooks.prepareCodexForWslPane': PrepareCodexForWslPaneParams,
   'agentSession.acknowledgeAttention': AcknowledgeAttentionParams,
   'agentSession.agents': AgentsParams,
+  'agentSession.autoModelPool': UniversalAutoModelPoolParams,
   'agentSession.cancel': CancelParams,
   'agentSession.close': OptionsParams,
   'agentSession.commands': OptionsParams,
@@ -1427,6 +1435,11 @@ export const RPC_PARAMS_BY_METHOD = {
   'ui.set': UiUpdate,
   'ui.setCollapsed': SetCollapsedParams,
   'ui.setJiraQuickFilters': JiraQuickFilterStateParam,
+  'universalChat.close': UniversalChatSessionParams,
+  'universalChat.create': UniversalChatCreateParams,
+  'universalChat.history': UniversalChatSessionParams,
+  'universalChat.select': UniversalChatSelectParams,
+  'universalChat.send': UniversalChatSendParams,
   'updater.check': UpdaterCheckParams,
   'updater.download': null,
   'updater.getStatus': null,
