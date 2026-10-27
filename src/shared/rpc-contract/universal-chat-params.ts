@@ -3,9 +3,7 @@ import { AUTO_MODEL_PROFILES } from '../auto-model-pool'
 import { isUniversalChatHarness } from '../universal-chat-harness'
 
 const SessionId = z.string().min(1).max(512)
-const Harness = z
-  .string()
-  .refine(isUniversalChatHarness, { message: 'Unknown Universal Chat harness' })
+const Harness = z.string().refine(isUniversalChatHarness, { message: 'Unknown Omni harness' })
 const Selection = z.discriminatedUnion('mode', [
   z.object({ mode: z.literal('auto'), harness: Harness.optional() }).strict(),
   z

@@ -11,7 +11,7 @@ const SESSION_ID = 'claude:universal-gateway-test'
 
 afterEach(() => unregisterUniversalChatGatewaySession(SESSION_ID))
 
-describe('universal chat gateway session environment', () => {
+describe('Omni chat gateway session environment', () => {
   it('only replaces Anthropic routing for the registered universal session', () => {
     registerUniversalChatGatewaySession(SESSION_ID, {
       harness: 'claude',

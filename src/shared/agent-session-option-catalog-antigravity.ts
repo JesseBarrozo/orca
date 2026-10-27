@@ -28,7 +28,7 @@ const ANTIGRAVITY_EFFORT: CatalogOption = {
 /**
  * Antigravity exposes its model inventory only after an ACP session starts. Keep the known
  * server defaults available while that first discovery is unavailable, just like Gemini's
- * static catalog, so Auto and Universal Chat do not lose the provider entirely.
+ * static catalog, so Auto and Omni do not lose the provider entirely.
  */
 export const ANTIGRAVITY_FALLBACK_MODELS: CatalogModel[] = [
   {

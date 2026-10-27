@@ -138,7 +138,7 @@ beforeEach(() => {
 })
 
 describe('QuickLaunchAgentMenuItems', () => {
-  it('shows the provider-neutral Universal Chat entry with the Orca logo', () => {
+  it('shows the provider-neutral Omni entry with the Orca logo', () => {
     const html = renderAgentMenuItems()
 
     expect(html).toContain('Omni')

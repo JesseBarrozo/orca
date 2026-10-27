@@ -156,7 +156,7 @@ const CODEX_EFFORT_CHOICES = [
 /**
  * Models that are supported by the Codex account family but may be omitted by
  * older `model/list` responses. Keep these in the shared seed so settings and
- * the universal chat can expose them consistently until live discovery catches
+ * the Omni chat can expose them consistently until live discovery catches
  * up.
  */
 export const CODEX_UNIVERSAL_FALLBACK_MODELS: CatalogModel[] = [

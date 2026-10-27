@@ -1,7 +1,7 @@
 import type { TuiAgent } from './tui-agent'
 
 /**
- * Harnesses that can back a structured Universal Chat session.
+ * Harnesses that can execute an Omni session.
  *
  * This is deliberately separate from the model provider list: a model can be
  * selected from one provider and executed by a different installed harness.
@@ -9,7 +9,6 @@ import type { TuiAgent } from './tui-agent'
  * registration before creating the session.
  */
 export const UNIVERSAL_CHAT_HARNESSES = [
-  'pi',
   'codex',
   'claude',
   'grok',
@@ -19,6 +18,10 @@ export const UNIVERSAL_CHAT_HARNESSES = [
   'opencode2',
   'omp'
 ] as const satisfies readonly TuiAgent[]
+
+/** Omni is the product harness. Pi is an internal RPC engine and is intentionally absent here. */
+export const OMNI_HARNESS_ID = 'omni' as const
+export const OMNI_INTERNAL_ENGINE = 'pi' as const
 
 export type UniversalChatHarness = (typeof UNIVERSAL_CHAT_HARNESSES)[number] | 'auto'
 

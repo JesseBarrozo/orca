@@ -329,7 +329,7 @@ export type GlobalSettings = GlobalSettingsBase & {
   terminalModelQueryAuthority?: boolean
   /** New-workspace agent: null chooses first detected, blank launches no agent, otherwise select that TuiAgent. */
   defaultTuiAgent: TuiAgent | 'blank' | null
-  /** Provider-neutral Universal Chat is the default surface for new agent sessions. */
+  /** Provider-neutral Omni is the default surface for new agent sessions. */
   universalChatDefault?: boolean
   universalChatDefaultHarness: TuiAgent | 'auto'
   newWorkspaceSetupOnly?: boolean

@@ -36,11 +36,11 @@ export type NativeChatStructuredViewProps = {
   /** This pane's split group holds focus; a revealed sibling column must not take the caret. */
   isFocusedGroup: boolean
   contextMenuActions?: Omit<NativeChatContextMenuActions, 'onPaste'>
-  /** Extra controls rendered in the native composer action row (for example Universal Chat's model pool). */
+  /** Extra controls rendered in the native composer action row (for example Omni's model pool). */
   composerAccessory?: NativeChatComposerAccessory
-  /** Universal Chat supplies the cross-provider model picker in place of the provider picker. */
+  /** Omni supplies the cross-provider model picker in place of the provider picker. */
   hideNativeModelPicker?: boolean
-  /** Optional empty-state copy for provider-neutral surfaces such as Universal Chat. */
+  /** Optional empty-state copy for provider-neutral surfaces such as Omni. */
   emptyStateCopy?: NativeChatEmptyStateCopy
 }
 

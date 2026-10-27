@@ -1,4 +1,4 @@
-/* eslint-disable max-lines -- Universal Chat extends the shared native session surface. */
+/* eslint-disable max-lines -- Omni extends the shared native session surface. */
 import { cn } from '@/lib/utils'
 import { NATIVE_CHAT_APPEARANCE_ROOT_CLASS } from './native-chat-appearance-style'
 import { useNativeChatStoreAppearanceStyle } from './use-native-chat-store-appearance-style'

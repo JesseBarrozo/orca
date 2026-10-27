@@ -42,7 +42,7 @@ export type QuickLaunchAgentMenuItemsProps = {
   onPromptHandedOff?: (delivered: Promise<unknown>) => void
   /** Nothing to send: e.g. every note is already on its way, so no agent is started. */
   disabled?: boolean
-  /** Opens the provider-neutral Universal Chat surface when its renderer transport is available. */
+  /** Opens the provider-neutral Omni surface when its renderer transport is available. */
   onUniversalChat?: () => void
 }
 

@@ -11,7 +11,7 @@ vi.mock('../antigravity/native-credential-backend', () => ({
 }))
 vi.mock('../network/http-client', () => ({ getMainHttpClient: vi.fn() }))
 
-describe('universal chat Antigravity transport', () => {
+describe('Omni chat Antigravity transport', () => {
   const fetch = vi.fn()
 
   beforeEach(() => {

@@ -24,7 +24,7 @@ export async function launchUniversalChatInNewTab(args: {
     args.worktreeId
   )
   const target = runtimeTargetForOwnerEnvironment(environmentId)
-  const snapshot = await callRuntimeRpc<{ sessionId: string }>(target, 'universalChat.create', {
+  const snapshot = await callRuntimeRpc<{ sessionId: string }>(target, 'omni.create', {
     worktree: args.worktreeId,
     profile: 'balanced'
   })

@@ -3,7 +3,7 @@ import type { AutoModelPoolEntry } from './auto-model-pool'
 const UNIVERSAL_CHAT_EFFORT_VARIANT_PATTERN = /(?:\s*\((low|medium|high)\)|[-_](low|medium|high))$/i
 
 /**
- * Antigravity exposes effort as part of the model id/label. Universal Chat has
+ * Antigravity exposes effort as part of the model id/label. Omni has
  * a separate Effort control, so those transport variants share one picker row.
  */
 export function collapseUniversalChatEffortVariants(

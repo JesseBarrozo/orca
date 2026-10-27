@@ -6,7 +6,7 @@ import {
 } from './universal-chat-harness'
 import { UniversalChatSelectParams } from './rpc-contract/universal-chat-params'
 
-describe('Universal Chat harness selection', () => {
+describe('Omni harness selection', () => {
   it('accepts Auto and every structured harness exposed by the picker', () => {
     expect(isUniversalChatHarness('auto')).toBe(true)
     for (const harness of UNIVERSAL_CHAT_HARNESSES) {

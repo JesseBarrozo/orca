@@ -74,7 +74,7 @@ export async function createUniversalChat(
   const models = await readPool(ctx, session)
   const candidate = await chooseCandidate(ctx, session, session.selection, models)
   if (!candidate) {
-    throw new Error('Aucun modèle activé et disponible pour le Chat universel.')
+    throw new Error('Aucun modèle activé et disponible pour le Chat Omni.')
   }
   const providerSession = await createProviderSession(ctx, session, candidate)
   session.id = providerSession.sessionId
@@ -94,7 +94,7 @@ export async function selectUniversalChat(
   const models = await readPool(ctx, session)
   const candidate = await chooseCandidate(ctx, session, normalizedSelection, models)
   if (!candidate) {
-    throw new Error('Aucun modèle activé et disponible pour le Chat universel.')
+    throw new Error('Aucun modèle activé et disponible pour le Chat Omni.')
   }
   session.selection = normalizedSelection
   const harness = resolveHarness(normalizedSelection, candidate.provider)
@@ -136,7 +136,7 @@ export async function sendUniversalChat(
   const models = await readPool(ctx, session)
   const candidate = await chooseCandidate(ctx, session, session.selection, models, text)
   if (!candidate) {
-    throw new Error('Aucun modèle activé et disponible pour le Chat universel.')
+    throw new Error('Aucun modèle activé et disponible pour le Chat Omni.')
   }
 
   const turn: UniversalChatTurn = {
@@ -241,7 +241,7 @@ async function createProviderSession(
   const harness = resolveHarness(session.selection, candidate.provider)
   const harnessRegistration = structuredAgentRuntimeRegistration(harness)
   if (!harnessRegistration) {
-    throw new Error(`Le harness ${harness} n’est pas disponible pour le Chat universel.`)
+    throw new Error(`Le harness ${harness} n’est pas disponible pour le Chat Omni.`)
   }
   const providerSessionId = createStructuredAgentSessionId(harness, randomUUID)
   const gateway = await resolveUniversalChatGatewayRoute({
@@ -325,11 +325,11 @@ async function sendToProvider(
   const host = await requireInstalledStructuredHost(ctx)
   const providerSession = session.providerSession
   if (!providerSession) {
-    throw new Error('Le transport du Chat universel n’est pas initialisé.')
+    throw new Error('Le transport du Chat Omni n’est pas initialisé.')
   }
   const record = host.deps.store.getRecord(providerSession.sessionId)
   if (!record) {
-    throw new Error('La session provider du Chat universel est indisponible.')
+    throw new Error('La session provider du Chat Omni est indisponible.')
   }
   const body = userBody(text)
   const envelope: AgentSessionMutationEnvelope = {
@@ -479,7 +479,7 @@ async function getSession(ctx: RpcContext, sessionId: string): Promise<Universal
     if (host.setSessionTabVisibility) {
       await host.setSessionTabVisibility(sessionId, false).catch(() => undefined)
     }
-    throw new Error('Chat universel introuvable ou déjà fermé.')
+    throw new Error('Chat Omni introuvable ou déjà fermé.')
   }
   const modelId = record.options?.model ?? 'auto'
   const restored: UniversalSession = {

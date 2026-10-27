@@ -74,7 +74,7 @@ export function createTabsCloseActions(
           // session. Close that owner explicitly here; the pane itself must not close it on
           // transient React remounts (model/harness changes and retained-pane updates).
           if (tab.agentSessionAgent === 'universal') {
-            void callRuntimeRpc(target, 'universalChat.close', { sessionId: tab.entityId }).catch(
+            void callRuntimeRpc(target, 'omni.close', { sessionId: tab.entityId }).catch(
               () => undefined
             )
           }

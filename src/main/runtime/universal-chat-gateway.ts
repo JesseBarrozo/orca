@@ -144,7 +144,7 @@ async function handleRequest(request: IncomingMessage, response: ServerResponse)
   const token = bearerToken(request)
   const route = token ? routes.get(token) : null
   if (!route) {
-    sendJson(response, 401, { error: { message: 'Session de Chat universel invalide.' } })
+    sendJson(response, 401, { error: { message: 'Session de Chat Omni invalide.' } })
     return
   }
   const controller = new AbortController()

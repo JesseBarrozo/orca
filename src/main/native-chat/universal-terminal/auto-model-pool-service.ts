@@ -21,7 +21,7 @@ export type AutoModelPoolService = {
     waitForListing?: boolean
     /** Settings needs the complete catalog so a disabled model can be re-enabled. */
     includeDisabled?: boolean
-    /** Settings needs catalogs for providers disabled in Auto and Universal Chat. */
+    /** Settings needs catalogs for providers disabled in Auto and Omni. */
     includeDisabledAgents?: boolean
     pool?: AutoModelPoolOptions
   }) => Promise<AutoModelPoolEntry[]>

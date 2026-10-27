@@ -56,7 +56,7 @@ export function filterEnabledNativeChatModels(
   return models.filter((model) => isNativeChatModelEnabled(disabledModelKeys, agent, model.id))
 }
 
-/** Provider-level availability is scoped to Auto and Universal Chat, not installed agents. */
+/** Provider-level availability is scoped to Auto and Omni, not installed agents. */
 export function normalizeDisabledNativeChatProviders(value: unknown): TuiAgent[] {
   if (!Array.isArray(value)) {
     return []

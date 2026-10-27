@@ -17,7 +17,7 @@ async function expectGatewayToStop(baseUrl: string): Promise<void> {
   throw new Error('The idle Orca compatibility gateway did not stop.')
 }
 
-describe('universal chat gateway model routing', () => {
+describe('Omni chat gateway model routing', () => {
   it('uses the Antigravity route namespace for discovered models', () => {
     expect(gatewayModelId('antigravity', 'gemini-3.8-flash-high')).toBe('agy/gemini-3.8-flash-high')
   })

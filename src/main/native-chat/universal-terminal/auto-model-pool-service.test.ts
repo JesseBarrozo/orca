@@ -80,7 +80,7 @@ describe('auto model pool service', () => {
     ).resolves.toBe(pool[0])
   })
 
-  it('removes providers disabled in Auto and Universal Chat while preserving them for settings discovery', async () => {
+  it('removes providers disabled in Auto and Omni while preserving them for settings discovery', async () => {
     const read = vi.fn(async ({ agent }: { agent: string }) => ({
       origin: 'probe' as const,
       fetchedAt: 1,

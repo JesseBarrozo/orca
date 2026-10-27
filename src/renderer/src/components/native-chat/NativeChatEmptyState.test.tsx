@@ -28,10 +28,10 @@ it('allows provider-neutral surfaces to replace provider-specific empty copy', (
     <NativeChatEmptyState
       kind="empty"
       agent="claude"
-      customCopy={{ title: 'Start a universal chat', subtitle: 'Orca chooses the model.' }}
+      customCopy={{ title: 'Start a Omni chat', subtitle: 'Orca chooses the model.' }}
     />
   )
-  expect(screen.getByText('Start a universal chat')).toBeInTheDocument()
+  expect(screen.getByText('Start a Omni chat')).toBeInTheDocument()
   expect(screen.getByText('Orca chooses the model.')).toBeInTheDocument()
   expect(screen.queryByText('Start a chat with Claude')).toBeNull()
 })

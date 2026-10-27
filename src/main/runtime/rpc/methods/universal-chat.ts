@@ -17,7 +17,7 @@ import { requireStructuredCapability } from './structured-agent-session-gate'
 
 export const UNIVERSAL_CHAT_METHODS = [
   defineMethod({
-    name: 'universalChat.create',
+    name: 'omni.create',
     permission: 'workspace',
     params: UniversalChatCreateParams,
     handler: async (params, ctx) => {
@@ -27,7 +27,7 @@ export const UNIVERSAL_CHAT_METHODS = [
     }
   }),
   defineMethod({
-    name: 'universalChat.history',
+    name: 'omni.history',
     permission: 'workspace',
     params: UniversalChatSessionParams,
     handler: async (params, ctx): Promise<UniversalChatSnapshot> => {
@@ -36,7 +36,7 @@ export const UNIVERSAL_CHAT_METHODS = [
     }
   }),
   defineMethod({
-    name: 'universalChat.select',
+    name: 'omni.select',
     permission: 'workspace',
     params: UniversalChatSelectParams,
     handler: async (params, ctx) => {
@@ -46,7 +46,7 @@ export const UNIVERSAL_CHAT_METHODS = [
     }
   }),
   defineMethod({
-    name: 'universalChat.send',
+    name: 'omni.send',
     permission: 'workspace',
     params: UniversalChatSendParams,
     handler: async (params, ctx) => {
@@ -55,7 +55,7 @@ export const UNIVERSAL_CHAT_METHODS = [
     }
   }),
   defineMethod({
-    name: 'universalChat.close',
+    name: 'omni.close',
     permission: 'workspace',
     params: UniversalChatSessionParams,
     handler: async (params, ctx) => {

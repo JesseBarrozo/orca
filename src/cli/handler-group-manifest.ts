@@ -23,7 +23,7 @@ export const HANDLER_GROUPS: readonly HandlerGroup[] = [
   },
   {
     name: 'universal-chat',
-    keys: ['universal'],
+    keys: ['omni'],
     load: async () => (await import('./handlers/universal-chat.js')).UNIVERSAL_CHAT_HANDLERS
   },
   {

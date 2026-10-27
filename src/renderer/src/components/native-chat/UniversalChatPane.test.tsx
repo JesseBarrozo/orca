@@ -91,7 +91,7 @@ describe('UniversalChatPane', () => {
       settings: settingsWithDisabledModelKeys(['claude:fable'])
     })
     runtimeRpc.mockImplementation(async (_target: unknown, method: string) => {
-      if (method === 'universalChat.history') {
+      if (method === 'omni.history') {
         const disabled = useAppStore
           .getState()
           .settings?.disabledNativeChatModelKeys?.includes('claude:fable')
@@ -111,7 +111,7 @@ describe('UniversalChatPane', () => {
     )
 
     await waitFor(() => {
-      expect(runtimeRpc).toHaveBeenCalledWith(target, 'universalChat.history', {
+      expect(runtimeRpc).toHaveBeenCalledWith(target, 'omni.history', {
         sessionId: 'universal-session'
       })
     })
@@ -122,24 +122,24 @@ describe('UniversalChatPane', () => {
     })
 
     await waitFor(() => {
-      expect(
-        runtimeRpc.mock.calls.filter(([, method]) => method === 'universalChat.history')
-      ).toHaveLength(2)
+      expect(runtimeRpc.mock.calls.filter(([, method]) => method === 'omni.history')).toHaveLength(
+        2
+      )
     })
 
-    const picker = screen.getByRole('button', { name: 'Universal Chat model: Auto' })
+    const picker = screen.getByRole('button', { name: 'Omni model: Auto' })
     expect(picker).toBeInTheDocument()
     fireEvent.click(picker)
     expect(screen.getByText('Fable')).toBeInTheDocument()
     expect(screen.getByRole('switch', { name: /Fast mode|Mode rapide/ })).toBeDisabled()
   })
 
-  it('hides models from a provider disabled in Universal Chat settings', async () => {
+  it('hides models from a provider disabled in Omni settings', async () => {
     useAppStore.setState({
       settings: settingsWithDisabledProviders(['claude'])
     })
     runtimeRpc.mockImplementation(async (_target: unknown, method: string) => {
-      if (method === 'universalChat.history') {
+      if (method === 'omni.history') {
         return snapshot([fable])
       }
       return undefined
@@ -156,7 +156,7 @@ describe('UniversalChatPane', () => {
     )
 
     const picker = await screen.findByRole('button', {
-      name: 'Universal Chat model: Auto'
+      name: 'Omni model: Auto'
     })
     fireEvent.click(picker)
     expect(screen.queryByText('Fable')).not.toBeInTheDocument()

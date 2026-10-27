@@ -66,7 +66,7 @@ export function UniversalChatPane({
   )
 
   const refresh = useCallback(async () => {
-    const next = await callRuntimeRpc<UniversalChatSnapshot>(target, 'universalChat.history', {
+    const next = await callRuntimeRpc<UniversalChatSnapshot>(target, 'omni.history', {
       sessionId
     })
     setSnapshot(next)
@@ -114,7 +114,7 @@ export function UniversalChatPane({
         : { mode: 'auto', harness: selectedHarness }
       setSelection(next)
       setError(null)
-      void callRuntimeRpc<UniversalChatSnapshot>(target, 'universalChat.select', {
+      void callRuntimeRpc<UniversalChatSnapshot>(target, 'omni.select', {
         sessionId,
         selection: next
       })
@@ -137,7 +137,7 @@ export function UniversalChatPane({
             }
       setSelection(next)
       setError(null)
-      void callRuntimeRpc<UniversalChatSnapshot>(target, 'universalChat.select', {
+      void callRuntimeRpc<UniversalChatSnapshot>(target, 'omni.select', {
         sessionId,
         selection: next
       })

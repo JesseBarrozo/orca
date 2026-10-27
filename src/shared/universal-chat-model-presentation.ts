@@ -1,5 +1,5 @@
 /**
- * Presentation helpers for models surfaced by Auto and Universal Chat.
+ * Presentation helpers for models surfaced by Auto and Omni.
  *
  * Provider/model ids are transport values and must not leak into the UI as
  * display names. The underlying provider segment remains useful as the row

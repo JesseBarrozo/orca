@@ -7,7 +7,7 @@ import {
   universalChatModelProviderLabel
 } from './universal-chat-model-presentation'
 
-describe('universal chat model presentation', () => {
+describe('Omni chat model presentation', () => {
   it('removes OpenCode transport prefixes and shows the underlying OpenAI vendor', () => {
     const model = {
       provider: 'opencode2',

@@ -21,7 +21,7 @@ export type TabBarProps = {
   onCloseSplitPane?: () => void
   onNewTerminalTab: () => void
   onNewTerminalWithShell?: (shell: string) => void
-  /** Opens the provider-neutral Chat universel surface from the native + menu. */
+  /** Opens the provider-neutral Chat Omni surface from the native + menu. */
   onUniversalChat?: () => void
   onNewBrowserTab: () => void
   onNewSimulatorTab?: () => void

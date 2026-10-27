@@ -99,7 +99,7 @@ export type StructuredAgentSessionRuntimeDeps = StructuredAgentSessionTransportO
   resolveAgentAccountHome?: RuntimeAgentAccountHomeResolver
   /** Read the persisted model visibility preferences when Auto builds its pool. */
   getDisabledNativeChatModelKeys?: () => readonly string[] | undefined
-  /** Read the persisted Universal Chat provider visibility preferences when Auto builds its pool. */
+  /** Read the persisted Omni provider visibility preferences when Auto builds its pool. */
   getDisabledNativeChatProviders?: () => readonly string[] | undefined
 } & Pick<StructuredAgentSessionHostDeps, 'onRequestFailure' | 'statusSink'>
 
