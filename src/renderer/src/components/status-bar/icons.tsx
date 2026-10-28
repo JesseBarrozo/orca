@@ -10,7 +10,7 @@ export function OmniIcon({ size = 14 }: { size?: number }): React.JSX.Element {
       aria-hidden="true"
       width={size}
       height={size}
-      className="block shrink-0"
+      className="block shrink-0 object-contain"
       style={{ width: size, height: size }}
     />
   )
